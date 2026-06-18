@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shop hoa của Kem | Official E-Commerce Masterpiece</title>
+    <title>Tiệm hoa nhỏ của Kem</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/6618/6618647.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -33,18 +34,45 @@
            1. BASE & SCROLL LOCK
            ========================================== */
         /* 1. XÓA THANH CUỘN TOÀN CỤC NHƯNG VẪN CHO PHÉP CUỘN MƯỢT MÀ */
-        html, body { width: 100%; height: 100%; margin: 0; background-color: #EBF2F6; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
-        ::-webkit-scrollbar { display: none; }
-        body { overflow-y: hidden; touch-action: none; } 
-        body.is-loaded { overflow-y: auto; touch-action: auto; overflow-x: hidden; }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; } 
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: #EBF2F6;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            overflow-y: hidden;
+            touch-action: none;
+        }
+
+        body.is-loaded {
+            overflow-y: auto;
+            touch-action: auto;
+            overflow-x: hidden;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
         /* 2. TIÊU DIỆT LỚP ÁM XANH/VÀNG AUTOFILL CỦA TRÌNH DUYỆT TRÊN FORM */
         input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #FDFDFD inset !important;
             -webkit-text-fill-color: #142534 !important;
@@ -53,7 +81,10 @@
 
         /* 3. TIÊU DIỆT CON MẮT VÀ NÚT XÓA MẶC ĐỊNH TRÊN Ô PASSWORD */
         input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear { display: none !important; }
+        input[type="password"]::-ms-clear {
+            display: none !important;
+        }
+
         input[type="password"]::-webkit-credentials-auto-fill-button {
             visibility: hidden !important;
             display: none !important;
@@ -751,31 +782,31 @@
         /* ==========================================
    CUSTOM DROPDOWN FILTER STYLES
    ========================================== */
-#custom-sort-menu.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-}
+        #custom-sort-menu.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
 
-#custom-sort-icon.rotate {
-    transform: rotate(180deg);
-}
+        #custom-sort-icon.rotate {
+            transform: rotate(180deg);
+        }
 
-.sort-option.selected {
-    font-weight: 600;
-}
+        .sort-option.selected {
+            font-weight: 600;
+        }
 
-.sort-option.selected::after {
-    content: '';
-    position: absolute;
-    right: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    background-color: #142534;
-    border-radius: 50%;
-}
+        .sort-option.selected::after {
+            content: '';
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: #142534;
+            border-radius: 50%;
+        }
     </style>
 </head>
 
@@ -783,7 +814,7 @@
 
     <!-- HIỆU ỨNG PRELOADER NGHỆ THUẬT -->
     <div id="luxury-intro">
-        <div id="intro-text">Tiệm hoa của Kem xin chào</div>
+        <div id="intro-text">Tiệm hoa nhỏ của Kem xin chào</div>
         <div class="bloom-container" id="bloom-container">
             <div class="petal-intro p1" style="--r:0deg; --d:0s"></div>
             <div class="petal-intro p2" style="--r:72deg; --d:0.2s"></div>
@@ -835,20 +866,21 @@
     <section id="hero-section">
         <div id="slider-container" class="w-full h-full relative">
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Hoa Tươi" />
+                <img src="Slide_1.jpg" class="hero-bg" alt="Hoa Tươi" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Fresh Blooms</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Hương Sắc Thiên
+                            Nhiên</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Tinh Khôi <br> <span class="italic font-light text-accent">Nắng Mai.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Tươi.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Hoa tươi cắt cành mỗi ngày. Lưu giữ trọn vẹn hương thơm và vẻ đẹp rực rỡ nhất từ khu vườn Kem's.
+                        Đừng để thời gian làm phai nhạt những điều tốt đẹp, hãy để hoa tươi thay lời muốn nói vì mỗi
+                        cánh hoa là một hơi thở của sự sống, mang theo chân tình gửi gắm đến người thương.
                     </p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
@@ -857,41 +889,42 @@
                 </div>
             </div>
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1572454591674-2739f30d8c40?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Cẩm Tú Cầu" />
+                <img src="Slide_2.jpg" class="hero-bg" alt="Cẩm Tú Cầu" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Hoa Cầm Tay</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Hoa Ký Ức</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Hơi Thở <br> <span class="italic font-light text-accent">Mùa Hạ.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Kẽm Nhung.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Tuyển chọn từ những cành Cẩm Tú Cầu mang sắc xanh dịu êm nguyên bản nhất.</p>
+                        Mỗi cánh hoa kẽm nhung là một câu chuyện kiên nhẫn, sự mềm mại đến lạ kỳ của chất liệu kẽm nhung
+                        hòa quyện cùng sự khéo léo của đôi bàn tay tạo nên một món quà độc bản không bao giờ phai nhạt.
+                    </p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
                             class="magnetic-btn px-10 py-4 border border-white/50 text-[11px] font-semibold tracking-[0.2em] text-white rounded-full uppercase">Khám
-                            Phá Sắc Xanh</button></div>
+                            Phá Dịu Êm</button></div>
                 </div>
             </div>
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1591886884639-65123ccbc77d?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Mẫu Đơn Trắng" />
+                <img src="Slide_3.jpg" class="hero-bg" alt="Mẫu Đơn Trắng" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Bespoke Floral</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Lưu Hương</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Vũ Điệu <br> <span class="italic font-light text-accent">Thiên Nga.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Sáp.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Hoa Mẫu Đơn trắng muốt vươn mình kiêu hãnh. Biểu tượng tối thượng của sự thịnh vượng.</p>
+                        Nếu vẻ đẹp của hoa tươi là một thoáng chốc huy hoàng, thì hoa sáp chính là đóa hoa của sự vĩnh
+                        cửu, lặng lẽ tỏa hương và mãi kiêu sa.</p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
                             class="magnetic-btn px-10 py-4 border border-white/50 text-[11px] font-semibold tracking-[0.2em] text-white rounded-full uppercase">Bộ
@@ -899,21 +932,20 @@
                 </div>
             </div>
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1520764835667-5d074e2d3121?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Tulip Pastel" />
+                <img src="Slide_4.jpg" class="hero-bg" alt="Tulip Pastel" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Spring
-                            Collection</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Ngọt Ngào</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Giấc Mơ <br> <span class="italic font-light text-accent">Ban Mai.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Bánh Kẹo.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Sự kết hợp hoàn hảo của sắc hồng Tulip Hà Lan. Ngọt ngào như nụ hôn đầu.</p>
+                        Gói trọn cả thế giới yêu thương vào trong những chiếc kẹo nhỏ xinh, để tình cảm của bạn không
+                        chỉ để ngắm và còn có thể cảm nhận bằng cả vị giác.</p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
                             class="magnetic-btn px-10 py-4 border border-white/50 text-[11px] font-semibold tracking-[0.2em] text-white rounded-full uppercase">Xem
@@ -921,8 +953,7 @@
                 </div>
             </div>
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1563241527-3004b7be0ffd?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Hồng Nhung" />
+                <img src="Slide_5.jpg" class="hero-bg" alt="Hồng Nhung" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
@@ -931,10 +962,11 @@
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Khúc Hát <br> <span class="italic font-light text-accent">Hồng Nhan.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Gấu.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Sắc đỏ kiêu kỳ của Hoa Hồng Ecuador thay cho hàng ngàn lời yêu thương sâu đậm nhất.</p>
+                        Gói ghém cả bầu trời dễ thương vào trong một bó hoa, tặng hoa gấu, tặng cả sự cưng chiều dành
+                        riêng cho người ấy.</p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
                             class="magnetic-btn px-10 py-4 border border-white/50 text-[11px] font-semibold tracking-[0.2em] text-white rounded-full uppercase">Tìm
@@ -942,20 +974,21 @@
                 </div>
             </div>
             <div class="slide">
-                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1920&auto=format&fit=crop"
-                    class="hero-bg" alt="Tháp Bánh Kẹo" />
+                <img src="Slide_6.jpg" class="hero-bg" alt="Tháp Bánh Kẹo" />
                 <div class="hero-overlay"></div>
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Luxury Gift</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đài Hoa Ngọt
+                            Ngào</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Đài Các <br> <span class="italic font-light text-accent">Kiêu Sa.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Tháp Bánh Kẹo.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
-                        Tháp bánh kẹo nghệ thuật, kết hợp hoàn hảo giữa hương vị ngọt ngào và vẻ đẹp sang trọng.</p>
+                        Gói trọn sự đủ đầy trong một tuyệt tác, tháp bánh kẹo là lựa chọn hoàn hảo để gửi gắm lời chúc
+                        về một cuộc sống ngọt ngào và thành công rực rỡ.</p>
                     <div class="anim-text delay-3"><button
                             onclick="document.getElementById('boutique-section').scrollIntoView()"
                             class="magnetic-btn px-10 py-4 border border-white/50 text-[11px] font-semibold tracking-[0.2em] text-white rounded-full uppercase">Khám
@@ -964,7 +997,8 @@
             </div>
         </div>
 
-        <div id="slider-controls" class="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-16 flex items-center justify-center gap-4 z-40 w-max">
+        <div id="slider-controls"
+            class="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-16 flex items-center justify-center gap-4 z-40 w-max">
             <button id="btn-prev" class="text-white p-2 hover:opacity-70 hover:scale-110 transition-all"><svg width="20"
                     height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M15 18l-6-6 6-6" />
@@ -1002,6 +1036,7 @@
                     <button data-cat="hoa-keo" class="cat-btn pb-2 whitespace-nowrap">Hoa Kẹo</button>
                     <button data-cat="hoa-gau" class="cat-btn pb-2 whitespace-nowrap">Hoa Gấu</button>
                     <button data-cat="thap-banh" class="cat-btn pb-2 whitespace-nowrap">Tháp Bánh Kẹo</button>
+                    <button data-cat="khac" class="cat-btn pb-2 whitespace-nowrap">Khác</button>
                 </div>
                 <span class="w-[1px] h-4 bg-primary/30 hidden md:block shrink-0 mx-2"></span>
                 <button onclick="openContact()"
@@ -1017,60 +1052,73 @@
 
         <div id="product-loading" class="w-full text-center py-20 text-primary font-serif italic text-lg">Đang kết nối
             hệ thống...</div>
-        
-        <div id="master-filter-container" class="max-w-[1600px] mx-auto mb-16 pb-8 border-b border-primary/10 flex flex-col md:flex-row items-center justify-between gap-8 font-sans text-xs transition-all duration-700 opacity-100 hidden">
-    
-    <div class="flex items-center gap-4 w-full md:w-auto relative z-30">
-        <span class="text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/60">Sắp xếp</span>
-        
-        <div class="relative w-full md:w-64" id="custom-sort-wrapper">
-            <select id="price-sort-filter" onchange="applyMasterFilter()" class="hidden">
-                <option value="default">Tác phẩm mới nhất</option>
-                <option value="asc">Giá: Từ thấp đến cao</option>
-                <option value="desc">Giá: Từ cao đến thấp</option>
-            </select>
 
-            <button type="button" id="custom-sort-trigger" class="w-full flex items-center justify-between bg-transparent text-primary font-medium py-2.5 px-0 border-b border-primary/20 hover:border-primary transition-colors focus:outline-none group">
-                <span id="custom-sort-text" class="font-serif italic text-[15px] tracking-wide text-primary/90">Tác phẩm mới nhất</span>
-                <svg id="custom-sort-icon" class="w-4 h-4 text-primary/40 group-hover:text-primary transition-all duration-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
+        <div id="master-filter-container"
+            class="max-w-[1600px] mx-auto mb-16 pb-8 border-b border-primary/10 flex flex-col md:flex-row items-center justify-between gap-8 font-sans text-xs transition-all duration-700 opacity-100 hidden">
 
-            <div id="custom-sort-menu" class="absolute top-full left-0 w-full mt-2 bg-surface border border-primary/10 rounded-2xl shadow-[0_20px_40px_rgba(20,37,52,0.06)] opacity-0 pointer-events-none transform translate-y-3 transition-all duration-400 overflow-hidden z-50">
-                <div class="flex flex-col py-1.5">
-                    <button type="button" data-value="default" class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
-                        Tác phẩm mới nhất
+            <div class="flex items-center gap-4 w-full md:w-auto relative z-30">
+                <span class="text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/60">Sắp xếp</span>
+
+                <div class="relative w-full md:w-64" id="custom-sort-wrapper">
+                    <select id="price-sort-filter" onchange="applyMasterFilter()" class="hidden">
+                        <option value="default">Mặc định</option>
+                        <option value="asc">Giá: Từ thấp đến cao</option>
+                        <option value="desc">Giá: Từ cao đến thấp</option>
+                    </select>
+
+                    <button type="button" id="custom-sort-trigger"
+                        class="w-full flex items-center justify-between bg-transparent text-primary font-medium py-2.5 px-0 border-b border-primary/20 hover:border-primary transition-colors focus:outline-none group">
+                        <span id="custom-sort-text"
+                            class="font-serif italic text-[15px] tracking-wide text-primary/90">Sản phẩm mới nhất</span>
+                        <svg id="custom-sort-icon"
+                            class="w-4 h-4 text-primary/40 group-hover:text-primary transition-all duration-400"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
                     </button>
-                    <button type="button" data-value="asc" class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
-                        Giá: Từ thấp đến cao
-                    </button>
-                    <button type="button" data-value="desc" class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
-                        Giá: Từ cao đến thấp
-                    </button>
+
+                    <div id="custom-sort-menu"
+                        class="absolute top-full left-0 w-full mt-2 bg-surface border border-primary/10 rounded-2xl shadow-[0_20px_40px_rgba(20,37,52,0.06)] opacity-0 pointer-events-none transform translate-y-3 transition-all duration-400 overflow-hidden z-50">
+                        <div class="flex flex-col py-1.5">
+                            <button type="button" data-value="default"
+                                class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
+                                Tác phẩm mới nhất
+                            </button>
+                            <button type="button" data-value="asc"
+                                class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
+                                Giá: Từ thấp đến cao
+                            </button>
+                            <button type="button" data-value="desc"
+                                class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
+                                Giá: Từ cao đến thấp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 w-full md:w-auto justify-start md:justify-end">
+                <span class="text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/60">Khoảng giá</span>
+
+                <div
+                    class="flex items-center bg-transparent border-b border-primary/20 hover:border-primary transition-colors duration-400 group focus-within:border-primary pb-1">
+                    <div class="relative flex items-center">
+                        <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
+                        <input type="number" id="min-price-filter" placeholder="0" oninput="applyMasterFilter()"
+                            class="w-20 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+
+                    <div class="w-4 h-[1px] bg-primary/30 mx-3 group-focus-within:bg-primary transition-colors"></div>
+
+                    <div class="relative flex items-center">
+                        <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
+                        <input type="number" id="max-price-filter" placeholder="Vô cực" oninput="applyMasterFilter()"
+                            class="w-24 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="flex items-center gap-4 w-full md:w-auto justify-start md:justify-end">
-        <span class="text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/60">Khoảng giá</span>
-        
-        <div class="flex items-center bg-transparent border-b border-primary/20 hover:border-primary transition-colors duration-400 group focus-within:border-primary pb-1">
-            <div class="relative flex items-center">
-                <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
-                <input type="number" id="min-price-filter" placeholder="0" oninput="applyMasterFilter()" class="w-20 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-            </div>
-            
-            <div class="w-4 h-[1px] bg-primary/30 mx-3 group-focus-within:bg-primary transition-colors"></div>
-            
-            <div class="relative flex items-center">
-                <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
-                <input type="number" id="max-price-filter" placeholder="Vô cực" oninput="applyMasterFilter()" class="w-24 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-            </div>
-        </div>
-    </div>
-</div>
 
         <div id="product-grid"
             class="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16 hidden">
@@ -1094,39 +1142,46 @@
     <!-- FOOTER -->
     <footer class="w-full bg-primary text-white py-16 px-6 md:px-16 lg:px-24">
         <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-            
-            <div class="font-serif text-3xl font-semibold tracking-widest shrink-0">Tiệm hoa của Kem</div>
-            
-            <div class="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/60">
-                <a href="https://www.facebook.com/share/1BmFyRgbfj/" target="_blank" class="group flex items-center gap-3 hover:text-white transition-colors duration-300">
-                    <svg class="w-[18px] h-[18px] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+
+            <div class="font-serif text-3xl font-semibold tracking-widest shrink-0">Tiệm hoa nhỏ của Kem</div>
+
+            <div
+                class="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/60">
+                <a href="https://www.facebook.com/share/1BmFyRgbfj/" target="_blank"
+                    class="group flex items-center gap-3 hover:text-white transition-colors duration-300">
+                    <svg class="w-[18px] h-[18px] group-hover:scale-110 transition-transform duration-300"
+                        viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
                     Nguyễn Thị Hường
                 </a>
-                
+
                 <span class="w-1 h-1 bg-white/20 rounded-full hidden md:block"></span>
-                
-                <!-- Zalo Cá Nhân (Đỉnh cao SVG Masking - Có khung bong bóng chuẩn) -->
-                <a href="https://zalo.me/0969670034" target="_blank" class="group flex items-center gap-3 hover:text-white transition-colors duration-300">
-                    <svg class="w-[20px] h-[20px] group-hover:scale-110 transition-transform duration-300" viewBox="0 0 100 100">
+
+                <!-- Zalo Cá Nhân (Bản Chuẩn 100% - Đã cân bằng thị giác to hơn một chút) -->
+                <a href="https://zalo.me/0969670034" target="_blank"
+                    class="group flex items-center gap-3 hover:text-white transition-colors duration-300">
+                    <svg class="w-[22px] h-[22px] group-hover:scale-110 transition-transform duration-300"
+                        viewBox="0 0 100 100" fill="currentColor">
                         <defs>
-                            <mask id="zalo-mask">
-                                <!-- Lớp 1: Vẽ khung bong bóng chat màu trắng (Lớp giữ lại) -->
-                                <path fill="white" d="M50,10 C22.4,10 0,29.9 0,54.5 C0,68 6.8,80.1 17.7,87.6 L14,98.7 C13.6,99.9 14.8,101 15.9,100.5 L29.5,94 C35.8,96.8 42.7,98.5 50,98.5 C77.6,98.5 100,78.6 100,54.5 C100,29.9 77.6,10 50,10 Z" />
-                                <!-- Lớp 2: Dùng font chữ siêu đậm màu đen đục thủng chữ zalo (Lớp cắt bỏ) -->
-                                <text x="50" y="68" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="38" fill="black" text-anchor="middle" letter-spacing="-1.5">zalo</text>
+                            <mask id="zalo-mask-authentic">
+                                <!-- Lớp 1: Khung bong bóng Zalo -->
+                                <path fill="white"
+                                    d="M50,10 C22.4,10 0,29.9 0,54.5 C0,68 6.8,80.1 17.7,87.6 L14,98.7 C13.6,99.9 14.8,101 15.9,100.5 L29.5,94 C35.8,96.8 42.7,98.5 50,98.5 C77.6,98.5 100,78.6 100,54.5 C100,29.9 77.6,10 50,10 Z" />
+                                <!-- Lớp 2: Chữ Zalo Authentic đục thủng -->
+                                <image href="https://cdn.simpleicons.org/zalo/black" x="18" y="22" width="64"
+                                    height="64" />
                             </mask>
                         </defs>
-                        <!-- Phủ màu currentColor lên toàn bộ mask, giúp icon ăn khớp mọi hiệu ứng hover -->
-                        <rect width="100" height="100" fill="currentColor" mask="url(#zalo-mask)" />
+                        <rect width="100" height="100" fill="currentColor" mask="url(#zalo-mask-authentic)" />
                     </svg>
                     0969.670.034
                 </a>
             </div>
-            
+
             <p class="text-[10px] uppercase tracking-widest text-white/30 text-center md:text-right shrink-0">
-                © 2026 Tiệm hoa của Kem.<br class="block md:hidden"> All rights reserved.
+                © 2026 Tiệm hoa nhỏ của Kem.<br class="block md:hidden"> All rights reserved.
             </p>
         </div>
     </footer>
@@ -1193,9 +1248,13 @@
                             placeholder="Địa chỉ giao hàng (Số nhà, Đường, Quận)" class="elegant-input"></div>
                     <div><textarea id="form-note" placeholder="Ghi chú đơn hàng" rows="3"
                             class="elegant-input resize-none"></textarea></div>
-                    <div class="relative mt-2 border-b border-accent focus-within:border-primary transition-colors duration-300 group">
-                        <input type="text" id="voucher-input" placeholder="Nhập mã ưu đãi (Nếu có)" class="w-full py-4 bg-transparent font-sans text-sm text-primary outline-none placeholder:text-secondary/70 uppercase tracking-widest">
-                        <button type="button" onclick="validateVoucherCode()" id="btn-apply-voucher" class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-widest text-primary hover:text-secondary transition-all btn-hover">Áp Dụng</button>
+                    <div
+                        class="relative mt-2 border-b border-accent focus-within:border-primary transition-colors duration-300 group">
+                        <input type="text" id="voucher-input" placeholder="Nhập mã ưu đãi (Nếu có)"
+                            class="w-full py-4 bg-transparent font-sans text-sm text-primary outline-none placeholder:text-secondary/70 uppercase tracking-widest">
+                        <button type="button" onclick="validateVoucherCode()" id="btn-apply-voucher"
+                            class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-widest text-primary hover:text-secondary transition-all btn-hover">Áp
+                            Dụng</button>
                     </div>
                     <div id="public-vouchers-container" class="flex flex-wrap gap-2 mt-3"></div>
                 </form>
@@ -1226,7 +1285,8 @@
                     </svg>
                 </div>
                 <h3 class="font-serif text-3xl text-primary mb-4">Hoàn tất.</h3>
-                <p class="text-sm text-primary/70 font-light mb-10">Đơn hàng của bạn đã được gửi về hệ thống của Kem. Chúng tôi sẽ liên hệ với bạn trong vài phút tới.</p>
+                <p class="text-sm text-primary/70 font-light mb-10">Đơn hàng của bạn đã được gửi về hệ thống của Kem.
+                    Chúng tôi sẽ liên hệ với bạn trong vài phút tới.</p>
                 <button onclick="toggleCart(); switchView('cart-view')"
                     class="w-full py-4 border border-primary text-primary text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-primary hover:text-white hover-scale transition-colors">
                     Tiếp Tục Khám Phá
@@ -1255,13 +1315,25 @@
             <div class="space-y-6">
                 <div><input type="tel" id="login-phone" placeholder="Số điện thoại" class="elegant-input"></div>
                 <div class="relative">
-                    <input type="password" id="login-pass" placeholder="Mật khẩu" class="elegant-input pr-10" onkeypress="if(event.key === 'Enter') loginUser()">
-                    <button type="button" onclick="togglePassword('login-pass', this)" class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    <input type="password" id="login-pass" placeholder="Mật khẩu" class="elegant-input pr-10"
+                        onkeypress="if(event.key === 'Enter') loginUser()">
+                    <button type="button" onclick="togglePassword('login-pass', this)"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
+                            width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg></button>
                 </div>
-                <button onclick="loginUser()" id="btn-login-trigger" class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg">Đăng Nhập</button>
+                <button onclick="loginUser()" id="btn-login-trigger"
+                    class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg">Đăng
+                    Nhập</button>
                 <div class="flex justify-between items-center text-xs mt-2 px-1">
-                    <span class="cursor-pointer text-secondary hover:text-primary transition-colors underline" onclick="switchAuthView('forgot')">Quên mật khẩu?</span>
-                    <span class="text-secondary">Chưa có tài khoản? <span class="underline cursor-pointer text-primary font-medium hover:text-secondary transition-colors" onclick="switchAuthView('register')">Đăng ký</span></span>
+                    <span class="cursor-pointer text-secondary hover:text-primary transition-colors underline"
+                        onclick="switchAuthView('forgot')">Quên mật khẩu?</span>
+                    <span class="text-secondary">Chưa có tài khoản? <span
+                            class="underline cursor-pointer text-primary font-medium hover:text-secondary transition-colors"
+                            onclick="switchAuthView('register')">Đăng ký</span></span>
                 </div>
             </div>
         </div>
@@ -1270,32 +1342,58 @@
             <div class="flex-1 flex flex-col justify-center space-y-6 pb-8">
                 <div>
                     <h4 class="font-serif text-2xl text-primary">Đặt lại mật khẩu.</h4>
-                    <p class="text-xs text-secondary mt-2 leading-relaxed">Vui lòng nhập số điện thoại gắn liền với tài khoản của bạn để nhận mã khôi phục.</p>
+                    <p class="text-xs text-secondary mt-2 leading-relaxed">Vui lòng nhập số điện thoại gắn liền với tài
+                        khoản của bạn để nhận mã khôi phục.</p>
                 </div>
-                <div><input type="tel" id="forgot-phone" placeholder="Số điện thoại của bạn" class="elegant-input text-lg"></div>
-                <button onclick="requestPasswordReset()" id="btn-forgot-trigger" class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg mt-4">Gửi Mã Xác Thực</button>
-                <p class="text-xs text-center text-secondary"><span class="underline cursor-pointer text-primary font-medium hover:text-secondary transition-colors" onclick="switchAuthView('login')">Quay lại đăng nhập</span></p>
+                <div><input type="tel" id="forgot-phone" placeholder="Số điện thoại của bạn"
+                        class="elegant-input text-lg"></div>
+                <button onclick="requestPasswordReset()" id="btn-forgot-trigger"
+                    class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg mt-4">Gửi
+                    Mã Xác Thực</button>
+                <p class="text-xs text-center text-secondary"><span
+                        class="underline cursor-pointer text-primary font-medium hover:text-secondary transition-colors"
+                        onclick="switchAuthView('login')">Quay lại đăng nhập</span></p>
             </div>
         </div>
 
         <div id="auth-reset-view" class="auth-panel hide">
             <div class="flex-1 flex flex-col justify-center space-y-6 pb-8">
-                <div class="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#142534" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                <div class="w-14 h-14 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-2"><svg
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#142534" stroke-width="1.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg></div>
                 <div class="text-center">
-                    <p id="reset-email-msg" class="text-xs font-semibold text-blue-700 bg-blue-50 py-2 px-3 rounded-lg border border-blue-100 inline-block mb-4 shadow-sm"></p>
-                </div>
-                
-                <div id="reset-step-1" class="space-y-6 transition-all duration-500">
-                    <input type="text" id="reset-otp" placeholder="••••••" class="text-4xl tracking-[0.5em] text-center w-full border-none outline-none bg-transparent font-bold text-primary font-sans mt-4" maxlength="6">
-                    <button onclick="verifyOTPForReset()" id="btn-verify-otp-reset" class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg mt-4">Kiểm Tra Mã Xác Thực</button>
+                    <p id="reset-email-msg"
+                        class="text-xs font-semibold text-blue-700 bg-blue-50 py-2 px-3 rounded-lg border border-blue-100 inline-block mb-4 shadow-sm">
+                    </p>
                 </div>
 
-                <div id="reset-step-2" class="space-y-6 hide transition-all duration-500 opacity-0 transform translate-y-4">
+                <div id="reset-step-1" class="space-y-6 transition-all duration-500">
+                    <input type="text" id="reset-otp" placeholder="••••••"
+                        class="text-4xl tracking-[0.5em] text-center w-full border-none outline-none bg-transparent font-bold text-primary font-sans mt-4"
+                        maxlength="6">
+                    <button onclick="verifyOTPForReset()" id="btn-verify-otp-reset"
+                        class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg mt-4">Kiểm
+                        Tra Mã Xác Thực</button>
+                </div>
+
+                <div id="reset-step-2"
+                    class="space-y-6 hide transition-all duration-500 opacity-0 transform translate-y-4">
                     <div class="relative mt-2">
-                        <input type="password" id="reset-new-pass" placeholder="Nhập mật khẩu mới" class="elegant-input pr-10">
-                        <button type="button" onclick="togglePassword('reset-new-pass', this)" class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <input type="password" id="reset-new-pass" placeholder="Nhập mật khẩu mới"
+                            class="elegant-input pr-10">
+                        <button type="button" onclick="togglePassword('reset-new-pass', this)"
+                            class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
+                                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg></button>
                     </div>
-                    <button onclick="confirmPasswordReset()" id="btn-reset-trigger" class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg">Khôi Phục & Đăng Nhập</button>
+                    <button onclick="confirmPasswordReset()" id="btn-reset-trigger"
+                        class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg">Khôi
+                        Phục & Đăng Nhập</button>
                 </div>
             </div>
         </div>
@@ -1309,7 +1407,13 @@
                 <div><input type="email" id="user-email" placeholder="Email nhận mã OTP" class="elegant-input"></div>
                 <div class="relative">
                     <input type="password" id="user-pass" placeholder="Mật khẩu" class="elegant-input pr-10">
-                    <button type="button" onclick="togglePassword('user-pass', this)" class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    <button type="button" onclick="togglePassword('user-pass', this)"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
+                            width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg></button>
                 </div>
                 <div><input type="text" id="user-address" placeholder="Địa chỉ giao hàng mặc định"
                         class="elegant-input"></div>
@@ -1371,23 +1475,45 @@
         </div>
     </div>
 
-    <div id="confirm-modal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[150] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-400 px-4">
-        <div id="confirm-content" class="bg-surface p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-primary/10 transform scale-95 opacity-0 transition-all duration-400">
-            <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 mx-auto border border-red-100">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+    <div id="confirm-modal"
+        class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[150] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-400 px-4">
+        <div id="confirm-content"
+            class="bg-surface p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-primary/10 transform scale-95 opacity-0 transition-all duration-400">
+            <div
+                class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 mx-auto border border-red-100">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
             </div>
             <h3 id="confirm-title" class="font-serif text-2xl text-primary text-center mb-2">Xác nhận</h3>
-            <p id="confirm-msg" class="text-[13px] text-secondary mb-8 text-center leading-relaxed font-medium">Bạn có chắc chắn?</p>
+            <p id="confirm-msg" class="text-[13px] text-secondary mb-8 text-center leading-relaxed font-medium">Bạn có
+                chắc chắn?</p>
             <div class="flex flex-col gap-3 w-full">
-                <button id="btn-confirm-action" onclick="executeConfirmAction()" class="w-full py-4 bg-red-500 text-white text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-red-600 transition-colors shadow-lg flex justify-center items-center">Xác Nhận Hủy</button>
-                <button onclick="closeConfirmModal()" class="w-full py-4 border border-primary/20 text-primary text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-primary/5 transition-colors">Trở Lại</button>
+                <button id="btn-confirm-action" onclick="executeConfirmAction()"
+                    class="w-full py-4 bg-red-500 text-white text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-red-600 transition-colors shadow-lg flex justify-center items-center">Xác
+                    Nhận Hủy</button>
+                <button onclick="closeConfirmModal()"
+                    class="w-full py-4 border border-primary/20 text-primary text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-primary/5 transition-colors">Trở
+                    Lại</button>
             </div>
         </div>
     </div>
 
-    <div id="image-lightbox" class="fixed inset-0 z-[120] bg-primary/95 backdrop-blur-xl flex items-center justify-center transition-opacity duration-400 opacity-0 pointer-events-none" onclick="closeLightbox()">
-        <button class="absolute top-6 right-6 text-white/70 hover:text-white hover:rotate-90 transition-all duration-300 z-10 p-2"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-        <img id="lightbox-img" src="" class="max-w-[95vw] max-h-[90vh] object-contain rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.3)] transform scale-90 transition-transform duration-400" onclick="event.stopPropagation()">
+    <div id="image-lightbox"
+        class="fixed inset-0 z-[120] bg-primary/95 backdrop-blur-xl flex items-center justify-center transition-opacity duration-400 opacity-0 pointer-events-none"
+        onclick="closeLightbox()">
+        <button
+            class="absolute top-6 right-6 text-white/70 hover:text-white hover:rotate-90 transition-all duration-300 z-10 p-2"><svg
+                width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg></button>
+        <img id="lightbox-img" src=""
+            class="max-w-[95vw] max-h-[90vh] object-contain rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.3)] transform scale-90 transition-transform duration-400"
+            onclick="event.stopPropagation()">
     </div>
 
     <!-- MODAL LIÊN HỆ ĐẶT RIÊNG (ZALO/FB) -->
@@ -1420,14 +1546,14 @@
     </div>
 
     <!-- ==========================================
-         HỆ THỐNG JAVASCRIPT (ĐẦY ĐỦ KHÔNG THIẾU 1 CHỮ)
+         HỆ THỐNG JAVASCRIPT
          ========================================== -->
     <script>
-        // CẮM CỨNG LINK API CỦA BẠN - KHÔNG CẦN CHỈNH SỬA
-        const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbxTx993GiwAN9GiKdbX5Ruu8Mq-r9pDmw00OEfvjUNXnH2Eeel0plVtRrRrR6Bmt13z/exec';
 
-        let ALL_PRODUCTS = []; let ALL_VOUCHERS = []; let cart = []; let appliedVoucherCode = ""; 
-        let appliedDiscountAmount = 0; 
+        const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbweTa1Nu5Zx0QFskNE4I-VVow5ED9QKhn2mtHSUemMb96yplYnwKPBhtXaQZu8kl9nUiw/exec';
+
+        let ALL_PRODUCTS = []; let ALL_VOUCHERS = []; let cart = []; let appliedVoucherCode = "";
+        let appliedDiscountAmount = 0;
         let cartSubTotal = 0;
         let LOGGED_USER = null;
         let USED_VOUCHERS = [];
@@ -1449,7 +1575,7 @@
         }
 
         // BỘ CÔNG CỤ UI: HIỆU ỨNG SPINNER TRÊN NÚT BẤM
-        window.setBtnLoading = function(btnId, isLoading, loadingText = 'ĐANG XỬ LÝ...') {
+        window.setBtnLoading = function (btnId, isLoading, loadingText = 'ĐANG XỬ LÝ...') {
             const btn = document.getElementById(btnId);
             if (!btn) return;
             if (isLoading) {
@@ -1466,7 +1592,7 @@
 
         // BỘ CÔNG CỤ UI: HỘP THOẠI XÁC NHẬN SANG TRỌNG
         let activeConfirmCallback = null;
-        window.showConfirmModal = function(title, message, callback) {
+        window.showConfirmModal = function (title, message, callback) {
             document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-msg').innerText = message;
             const modal = document.getElementById('confirm-modal');
@@ -1475,13 +1601,13 @@
             setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); }, 10);
             activeConfirmCallback = callback;
         }
-        window.closeConfirmModal = function() {
+        window.closeConfirmModal = function () {
             const modal = document.getElementById('confirm-modal');
             const content = document.getElementById('confirm-content');
             content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { modal.classList.add('pointer-events-none', 'opacity-0'); activeConfirmCallback = null; }, 400);
         }
-        window.executeConfirmAction = function() {
+        window.executeConfirmAction = function () {
             if (activeConfirmCallback) {
                 setBtnLoading('btn-confirm-action', true, 'ĐANG HỦY...');
                 activeConfirmCallback();
@@ -1497,11 +1623,11 @@
         }
 
         // XỬ LÝ ẢNH GOOGLE DRIVE
-        function processDriveImage(url) { 
-            if (!url) return ''; 
-            const match = url.match(/\/file\/d\/(.+?)\//) || url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/); 
+        function processDriveImage(url) {
+            if (!url) return '';
+            const match = url.match(/\/file\/d\/(.+?)\//) || url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
             // SỬ DỤNG CỔNG LH3 VÀ THAM SỐ =s0 ĐỂ LẤY ẢNH CHẤT LƯỢNG GỐC 100% (KHÔNG NÉN)
-            return match && match[1] ? `https://lh3.googleusercontent.com/d/${match[1]}=s0` : url; 
+            return match && match[1] ? `https://lh3.googleusercontent.com/d/${match[1]}=s0` : url;
         }
 
         // XỬ LÝ FORMAT TIỀN TỆ (KHÔNG LỖI 0k)
@@ -1517,15 +1643,15 @@
                 const response = await fetch(GOOGLE_API_URL + '?action=getStorefront');
                 const data = await response.json();
                 if (data.status === 'success') {
-                    ALL_PRODUCTS = data.products.map(p => ({...p, price: Number(p.price)}));
+                    ALL_PRODUCTS = data.products.map(p => ({ ...p, price: Number(p.price) }));
                     // Ép toàn bộ các trường số lượng và định mức về dạng Number chuẩn để tránh lỗi toán học NaN
                     ALL_VOUCHERS = data.vouchers.map(v => ({
-                        ...v, 
-                        value: Number(v.value), 
-                        usedCount: Number(v.usedCount), 
+                        ...v,
+                        value: Number(v.value),
+                        usedCount: Number(v.usedCount),
                         maxUsage: Number(v.maxUsage)
                     }));
-                    if (ALL_PRODUCTS.length === 0) { document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có tuyệt tác nào."; return; }
+                    if (ALL_PRODUCTS.length === 0) { document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có sản phẩm nào."; return; }
                     initStorefront();
                 } else { throw new Error("API Error"); }
             } catch (error) {
@@ -1538,17 +1664,17 @@
             document.getElementById('product-loading').style.display = 'none';
             document.getElementById('product-grid').classList.remove('hidden');
             document.getElementById('master-filter-container').classList.remove('hidden');
-            
+
             const vContainer = document.getElementById('public-vouchers-container');
-            if(ALL_VOUCHERS.length > 0) {
+            if (ALL_VOUCHERS.length > 0) {
                 let vHtml = '';
                 ALL_VOUCHERS.forEach(v => {
                     // LỌC 1: Nếu khách đã dùng mã này -> Tàng hình luôn
                     if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
-                    
+
                     // LỌC 2: Xử lý hiển thị chuẩn xác % hoặc VNĐ
                     let displayValue = v.type === 'PERCENT' ? `Giảm ${v.value}%` : `Giảm ${formatVND(v.value)}`;
-                    
+
                     vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}</span>`;
                 });
                 vContainer.innerHTML = vHtml;
@@ -1565,7 +1691,7 @@
             else { d.classList.add('open'); b.classList.add('open'); LOGGED_USER ? switchAuthView('dashboard') : switchAuthView('login'); }
         }
 
-        window.switchAuthView = function(view) {
+        window.switchAuthView = function (view) {
             document.querySelectorAll('.auth-panel').forEach(p => { p.classList.remove('active'); p.classList.add('hide'); });
             const titles = { login: "Đăng nhập.", register: "Tạo tài khoản.", otp: "Xác thực.", dashboard: "Tài khoản.", forgot: "Khôi phục.", reset: "Mật khẩu mới." };
             document.getElementById('auth-drawer-title').innerText = titles[view] || "Tài khoản.";
@@ -1574,18 +1700,18 @@
             setTimeout(() => { targetView.classList.add('active'); }, 10);
         }
 
-        window.requestPasswordReset = async function() {
+        window.requestPasswordReset = async function () {
             const phone = document.getElementById('forgot-phone').value.trim();
-            if(!phone) return luxuryToast("Vui lòng nhập số điện thoại!", true);
+            if (!phone) return luxuryToast("Vui lòng nhập số điện thoại!", true);
 
             setBtnLoading('btn-forgot-trigger', true, 'ĐANG TÌM KIẾM...');
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep1', payload: { phone: phone } }) }).then(r => r.json());
                 if (res.status === 'success') {
-                    tempResetPhone = phone; 
+                    tempResetPhone = phone;
                     luxuryToast(res.message);
                     document.getElementById('reset-email-msg').innerHTML = `Mã xác thực đã được gửi đến:<br><span class="text-sm font-bold mt-1 block tracking-widest text-primary">${res.email}</span>`;
-                    
+
                     // Reset lại giao diện Bước 1: Mở ô OTP, Khóa ô Mật khẩu
                     document.getElementById('reset-otp').disabled = false;
                     document.getElementById('reset-otp').value = '';
@@ -1601,57 +1727,57 @@
         }
 
         // HÀM MỚI: CHỈ KIỂM TRA OTP ĐỂ MỞ KHÓA MẬT KHẨU
-        window.verifyOTPForReset = async function() {
+        window.verifyOTPForReset = async function () {
             const otp = document.getElementById('reset-otp').value.trim();
-            if(!otp || otp.length < 6) return luxuryToast("Vui lòng nhập đủ 6 số OTP!", true);
+            if (!otp || otp.length < 6) return luxuryToast("Vui lòng nhập đủ 6 số OTP!", true);
 
             setBtnLoading('btn-verify-otp-reset', true, 'ĐANG KIỂM TRA...');
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'checkOTPValid', payload: { phone: tempResetPhone, otp: otp } }) }).then(r => r.json());
-                
+
                 if (res.status === 'success') {
                     luxuryToast(res.message);
-                    
+
                     // UX Magic: Khóa ô OTP lại, hiển thị ô nhập Mật khẩu với hiệu ứng trượt mượt mà
                     document.getElementById('reset-otp').disabled = true;
                     document.getElementById('btn-verify-otp-reset').classList.add('hide');
-                    
+
                     const step2 = document.getElementById('reset-step-2');
                     step2.classList.remove('hide');
                     setTimeout(() => { step2.classList.remove('opacity-0', 'translate-y-4'); }, 50);
                 } else {
                     luxuryToast(res.message, true);
                 }
-            } catch(e) { luxuryToast("Lỗi kết nối", true); }
+            } catch (e) { luxuryToast("Lỗi kết nối", true); }
             setBtnLoading('btn-verify-otp-reset', false);
         }
 
-        window.confirmPasswordReset = async function() {
+        window.confirmPasswordReset = async function () {
             const otp = document.getElementById('reset-otp').value.trim();
             const newPass = document.getElementById('reset-new-pass').value;
-            if(!otp || !newPass) return luxuryToast("Vui lòng nhập mật khẩu mới!", true);
+            if (!otp || !newPass) return luxuryToast("Vui lòng nhập mật khẩu mới!", true);
 
             setBtnLoading('btn-reset-trigger', true, 'ĐANG KHÔI PHỤC...');
             try {
                 const newPassHash = await sha256(newPass);
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordHash: newPassHash } }) }).then(r => r.json());
-                
+
                 if (res.status === 'success') {
                     luxuryToast(res.message);
                     document.getElementById('forgot-phone').value = ''; tempResetPhone = "";
-                    switchAuthView('login'); 
+                    switchAuthView('login');
                 } else { luxuryToast(res.message, true); }
-            } catch(e) { luxuryToast("Lỗi kết nối khôi phục", true); }
+            } catch (e) { luxuryToast("Lỗi kết nối khôi phục", true); }
             setBtnLoading('btn-reset-trigger', false);
         }
 
-        window.initiateOTPFlow = async function() {
+        window.initiateOTPFlow = async function () {
             const email = document.getElementById('user-email').value; const name = document.getElementById('user-name').value; const phone = document.getElementById('user-phone').value;
             const uid = document.getElementById('user-uid').value; // Kiểm tra xem là Đăng ký mới hay Cập nhật profile
-            
-            if(!email || !name || !phone) return luxuryToast("Vui lòng điền đủ Họ tên, SĐT và Email!", true);
+
+            if (!email || !name || !phone) return luxuryToast("Vui lòng điền đủ Họ tên, SĐT và Email!", true);
             setBtnLoading('btn-save-account', true, 'ĐANG KIỂM TRA...');
-            
+
             // Xây dựng payload bảo mật: Chỉ kích hoạt quét trùng khi người dùng Đăng ký mới (uid rỗng)
             const payload = {
                 action: 'sendOTP',
@@ -1664,56 +1790,56 @@
 
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
-                if(res.status === 'success') { 
-                    luxuryToast("Mã OTP đã được gửi về Email."); 
-                    switchAuthView('otp'); 
-                } else { 
+                if (res.status === 'success') {
+                    luxuryToast("Mã OTP đã được gửi về Email.");
+                    switchAuthView('otp');
+                } else {
                     luxuryToast(res.message, true); // Hiện lỗi trùng SĐT hoặc Email riêng biệt từ Server
                 }
             } catch (e) { luxuryToast("Lỗi kết nối máy chủ dữ liệu", true); }
             setBtnLoading('btn-save-account', false);
         }
 
-        window.finalUserAction = async function() {
+        window.finalUserAction = async function () {
             setBtnLoading('btn-verify-otp', true, 'ĐANG XỬ LÝ...');
             const uid = document.getElementById('user-uid').value; const pass = document.getElementById('user-pass').value;
             const passHash = pass ? await sha256(pass) : ""; const isEdit = uid ? true : false;
             const payload = { action: isEdit ? 'updateUser' : 'registerUser', payload: { uid: uid, name: document.getElementById('user-name').value, phone: document.getElementById('user-phone').value, email: document.getElementById('user-email').value, passwordHash: passHash, address: document.getElementById('user-address').value, otp: document.getElementById('user-otp').value } };
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
-                if(res.status === 'success') {
+                if (res.status === 'success') {
                     luxuryToast(res.message); document.getElementById('auth-register-view').querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('user-otp').value = ''; isEdit ? logoutUser() : switchAuthView('login');
                 } else { luxuryToast(res.message, true); }
-            } catch(e) { luxuryToast("Mã xác thực không hợp lệ!", true); }
+            } catch (e) { luxuryToast("Mã xác thực không hợp lệ!", true); }
             setBtnLoading('btn-verify-otp', false);
         }
 
-        window.loginUser = async function() {
+        window.loginUser = async function () {
             const phone = document.getElementById('login-phone').value; const pass = document.getElementById('login-pass').value;
-            if(!phone || !pass) return luxuryToast("Vui lòng nhập đầy đủ SĐT và Mật khẩu!", true);
+            if (!phone || !pass) return luxuryToast("Vui lòng nhập đầy đủ SĐT và Mật khẩu!", true);
             setBtnLoading('btn-login-trigger', true, 'ĐANG ĐĂNG NHẬP...');
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', payload: { email: phone, passwordHash: await sha256(pass) } }) }).then(r => r.json());
-                if(res.status === 'success') {
+                if (res.status === 'success') {
                     LOGGED_USER = res.user; luxuryToast(`Đăng nhập thành công. Chào bạn ${LOGGED_USER.name.split(' ').pop()}!`);
                     document.getElementById('nav-user-name').innerText = LOGGED_USER.name.split(' ').pop(); document.getElementById('form-name').value = LOGGED_USER.name; document.getElementById('form-phone').value = LOGGED_USER.phone; document.getElementById('form-address').value = LOGGED_USER.address || ''; document.getElementById('dash-welcome-title').innerText = LOGGED_USER.name + '.';
                     renderUserOrdersList(res.orders || []); switchAuthView('dashboard');
                     USED_VOUCHERS = res.usedVouchers || []; initStorefront(); autoApplyBestVoucher();
                 } else { luxuryToast(res.message, true); }
-            } catch(e) { luxuryToast("Lỗi kết nối máy chủ dữ liệu", true); }
+            } catch (e) { luxuryToast("Lỗi kết nối máy chủ dữ liệu", true); }
             setBtnLoading('btn-login-trigger', false);
         }
 
         function renderUserOrdersList(orders) {
             const container = document.getElementById('dashboard-orders-list');
-            if(orders.length === 0) { container.innerHTML = `<p class="italic text-secondary text-sm">Bạn chưa sở hữu tuyệt tác nào.</p>`; return; }
+            if (orders.length === 0) { container.innerHTML = `<p class="italic text-secondary text-sm">Bạn chưa có sản phẩm nào.</p>`; return; }
             let html = '';
             orders.reverse().forEach(o => {
                 const statusColor = o.status === 'KHÁCH HỦY' ? 'text-red-500' : (o.status === 'ĐÃ XÁC NHẬN' ? 'text-green-600' : 'text-blue-600');
-                
+
                 // Trích xuất Tên tuyệt tác từ cột cartDetails JSON
                 let itemsHtml = '';
-                if(o.cartDetails) {
+                if (o.cartDetails) {
                     try {
                         const items = JSON.parse(o.cartDetails);
                         // Thay đổi cấu trúc list để tôn vinh tên sản phẩm
@@ -1726,11 +1852,11 @@
                             </li>`;
                         });
                         itemsHtml += `</ul>`;
-                    } catch(e) {}
+                    } catch (e) { }
                 }
 
                 // Hiển thị Mã Voucher đã dùng nếu có
-                const voucherHtml = (o.voucher && o.voucher !== 'KHÔNG DÙNG' && o.voucher !== 'Không') 
+                const voucherHtml = (o.voucher && o.voucher !== 'KHÔNG DÙNG' && o.voucher !== 'Không')
                     ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${o.voucher}</p>` : '';
 
                 html += `<div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300">
@@ -1752,38 +1878,38 @@
             container.innerHTML = html;
         }
 
-        window.cancelOrderCustomer = async function(orderId) {
+        window.cancelOrderCustomer = async function (orderId) {
             showConfirmModal('Hủy Tuyệt Tác', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
                 try {
                     const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'cancelOrderCustomer', payload: { orderId: orderId } }) }).then(r => r.json());
-                    if(res.status === 'success') { 
-                        luxuryToast("Đã hủy đơn hàng thành công."); 
-                        toggleAuthDrawer(); 
-                        setTimeout(()=> { loginUser(); toggleAuthDrawer(); }, 500); 
+                    if (res.status === 'success') {
+                        luxuryToast("Đã hủy đơn hàng thành công.");
+                        toggleAuthDrawer();
+                        setTimeout(() => { loginUser(); toggleAuthDrawer(); }, 500);
                     }
-                } catch(e) { luxuryToast("Lỗi kết nối", true); }
+                } catch (e) { luxuryToast("Lỗi kết nối", true); }
                 closeConfirmModal();
                 setBtnLoading('btn-confirm-action', false);
             });
         }
 
-        window.openEditProfile = function() { 
-            switchAuthView('register'); 
-            document.getElementById('auth-drawer-title').innerText = "Cập nhật."; 
-            document.getElementById('btn-save-account').innerText = "Lưu thay đổi"; 
-            document.getElementById('reg-back-msg').classList.add('hide'); 
-            document.getElementById('user-uid').value = LOGGED_USER.uid; 
-            document.getElementById('user-name').value = LOGGED_USER.name; 
-            document.getElementById('user-phone').value = LOGGED_USER.phone; 
-            document.getElementById('user-email').value = LOGGED_USER.email; 
-            document.getElementById('user-address').value = LOGGED_USER.address || ''; 
-            
+        window.openEditProfile = function () {
+            switchAuthView('register');
+            document.getElementById('auth-drawer-title').innerText = "Cập nhật.";
+            document.getElementById('btn-save-account').innerText = "Lưu thay đổi";
+            document.getElementById('reg-back-msg').classList.add('hide');
+            document.getElementById('user-uid').value = LOGGED_USER.uid;
+            document.getElementById('user-name').value = LOGGED_USER.name;
+            document.getElementById('user-phone').value = LOGGED_USER.phone;
+            document.getElementById('user-email').value = LOGGED_USER.email;
+            document.getElementById('user-address').value = LOGGED_USER.address || '';
+
             // Xóa disable để cho phép người dùng tự do sửa lại Email nhận OTP
-            document.getElementById('user-email').disabled = false; 
+            document.getElementById('user-email').disabled = false;
         }
 
         // HÀM MỚI: ẨN/HIỆN MẬT KHẨU BẰNG ICON CON MẮT
-        window.togglePassword = function(inputId, btn) {
+        window.togglePassword = function (inputId, btn) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
                 input.type = "text";
@@ -1811,7 +1937,7 @@
             ex ? ex.qty++ : cart.push({ ...p, qty: 1 });
             const badge = document.getElementById('cart-badge'); badge.innerText = cart.reduce((s, i) => s + i.qty, 0);
             badge.classList.add('pop'); setTimeout(() => badge.classList.remove('pop'), 300);
-            luxuryToast(`Đã thêm "${p.name}" vào giỏ.`); 
+            luxuryToast(`Đã thêm "${p.name}" vào giỏ.`);
             if (appliedVoucherCode !== "") {
                 appliedVoucherCode = ""; appliedDiscountAmount = 0;
                 document.getElementById('voucher-input').value = "";
@@ -1823,7 +1949,7 @@
         window.changeQty = function (id, delta) {
             const item = cart.find(i => i.id == id); if (!item) return; item.qty += delta;
             if (item.qty <= 0) cart = cart.filter(i => i.id != id);
-            document.getElementById('cart-badge').innerText = cart.reduce((s, i) => s + i.qty, 0); 
+            document.getElementById('cart-badge').innerText = cart.reduce((s, i) => s + i.qty, 0);
             if (appliedVoucherCode !== "") {
                 appliedVoucherCode = ""; appliedDiscountAmount = 0;
                 document.getElementById('voucher-input').value = "";
@@ -1832,21 +1958,21 @@
             renderCartUI(); autoApplyBestVoucher();
         }
 
-        window.removeVoucher = function() {
+        window.removeVoucher = function () {
             appliedVoucherCode = ""; appliedDiscountAmount = 0;
             document.getElementById('voucher-input').value = "";
             luxuryToast("Đã gỡ mã ưu đãi.");
             renderCartUI();
         }
 
-        window.autoApplyBestVoucher = function() {
-            if(cart.length === 0 || !LOGGED_USER) return;
-            
+        window.autoApplyBestVoucher = function () {
+            if (cart.length === 0 || !LOGGED_USER) return;
+
             let bestCode = "";
             let bestDiscount = 0;
 
             ALL_VOUCHERS.forEach(v => {
-                if (USED_VOUCHERS.includes(v.code.toUpperCase())) return; 
+                if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
                 if (Number(v.usedCount) >= Number(v.maxUsage)) return; // Bỏ qua nếu mã đã hết lượt
 
                 let eligibleAmount = 0;
@@ -1860,7 +1986,7 @@
                     // Thực hiện tính toán mức giảm dựa trên định dạng PERCENT hoặc FIXED
                     let calcDiscount = v.type === 'PERCENT' ? eligibleAmount * (Number(v.value) / 100) : Number(v.value);
                     calcDiscount = Math.min(calcDiscount, eligibleAmount);
-                    
+
                     if (calcDiscount > bestDiscount) {
                         bestDiscount = calcDiscount;
                         bestCode = v.code;
@@ -1878,11 +2004,11 @@
             }
         }
 
-        window.validateVoucherCode = async function() {
-            if(!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập để sử dụng mã ưu đãi!", true);
+        window.validateVoucherCode = async function () {
+            if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập để sử dụng mã ưu đãi!", true);
             const codeInput = document.getElementById('voucher-input').value.trim().toUpperCase();
-            if(!codeInput) return luxuryToast("Vui lòng nhập hoặc chọn một mã ưu đãi!", true);
-            if(cart.length === 0) return luxuryToast("Hãy chọn một tuyệt tác vào giỏ hàng trước!", true);
+            if (!codeInput) return luxuryToast("Vui lòng nhập hoặc chọn một mã ưu đãi!", true);
+            if (cart.length === 0) return luxuryToast("Hãy chọn một sản phẩm vào giỏ hàng trước!", true);
 
             const btn = document.getElementById('btn-apply-voucher');
             const originalText = btn.innerText;
@@ -1892,8 +2018,8 @@
                 // Gửi dữ liệu về Backend để phân xử giá tiền
                 const payload = { action: 'validateVoucher', payload: { uid: LOGGED_USER.uid, voucherCode: codeInput, cart: cart } };
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
-                
-                if(res.status === 'success') {
+
+                if (res.status === 'success') {
                     appliedVoucherCode = codeInput;
                     appliedDiscountAmount = res.discount; // Backend báo giảm bao nhiêu thì lấy bấy nhiêu
                     luxuryToast(`Mã hợp lệ! Đã giảm ${formatVND(appliedDiscountAmount)}.`);
@@ -1903,8 +2029,8 @@
                     luxuryToast(res.message, true);
                     renderCartUI();
                 }
-            } catch(e) { luxuryToast("Lỗi kết nối khi kiểm tra mã.", true); }
-            
+            } catch (e) { luxuryToast("Lỗi kết nối khi kiểm tra mã.", true); }
+
             btn.innerText = originalText; btn.disabled = false;
         }
 
@@ -1925,7 +2051,7 @@
                     </div>`;
             });
             container.innerHTML = html; subTotalEl.innerHTML = formatVND(cartSubTotal);
-            let finalPrice = Math.max(0, cartSubTotal - appliedDiscountAmount); 
+            let finalPrice = Math.max(0, cartSubTotal - appliedDiscountAmount);
             document.getElementById('final-total-price').innerHTML = formatVND(finalPrice);
             const finalDiscountEl = document.getElementById('final-discount-text');
             if (appliedDiscountAmount > 0) {
@@ -1943,16 +2069,16 @@
             switchView('checkout-view');
         }
 
-        window.submitOrder = async function(e) {
-            e.preventDefault(); 
-            if(!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập trước khi thanh toán!", true);
-            if(cart.length === 0) return luxuryToast("Giỏ hàng đang rỗng!", true);
-            setBtnLoading('btn-submit-order', true, 'ĐANG MÃ HÓA ĐƠN...'); 
+        window.submitOrder = async function (e) {
+            e.preventDefault();
+            if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập trước khi thanh toán!", true);
+            if (cart.length === 0) return luxuryToast("Giỏ hàng đang rỗng!", true);
+            setBtnLoading('btn-submit-order', true, 'ĐANG MÃ HÓA ĐƠN...');
             const orderData = { action: 'createOrder', payload: { uid: LOGGED_USER.uid, customerName: document.getElementById('form-name').value, phone: document.getElementById('form-phone').value, address: document.getElementById('form-address').value, note: document.getElementById('form-note').value, voucher: appliedVoucherCode || "KHÔNG DÙNG", cart: cart } };
-            try { 
-                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json()); 
-                if(res.status === 'success') {
-                    cart = []; document.getElementById('cart-badge').innerText = '0'; appliedVoucherCode = ""; appliedDiscountAmount = 0; document.getElementById('voucher-input').value = ""; renderCartUI(); switchView('success-view'); e.target.reset(); luxuryToast("Gửi đơn hàng thành công!"); setTimeout(() => loginUser(), 1500); 
+            try {
+                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json());
+                if (res.status === 'success') {
+                    cart = []; document.getElementById('cart-badge').innerText = '0'; appliedVoucherCode = ""; appliedDiscountAmount = 0; document.getElementById('voucher-input').value = ""; renderCartUI(); switchView('success-view'); e.target.reset(); luxuryToast("Gửi đơn hàng thành công!"); setTimeout(() => loginUser(), 1500);
                 } else { luxuryToast(res.message, true); }
             } catch (error) { luxuryToast("Lỗi kết nối CSDL", true); }
             setBtnLoading('btn-submit-order', false);
@@ -1960,16 +2086,16 @@
 
         window.openContact = function () { const m = document.getElementById('contact-modal'); m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('contact-modal-content').classList.remove('scale-95', 'opacity-0'); }, 10); }
         window.closeContact = function () { const m = document.getElementById('contact-modal'); m.classList.add('opacity-0'); document.getElementById('contact-modal-content').classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 400); }
-        window.openLightbox = function(imgSrc) {
+        window.openLightbox = function (imgSrc) {
             // Giới hạn: Chỉ phóng to khi dùng trên điện thoại (màn hình < 768px). 
             // Lời khuyên thiết kế: Nếu bạn muốn PC cũng phóng to được (tính năng rất sang trọng), hãy XÓA dòng if bên dưới đi!
-            if (window.innerWidth > 768) return; 
+            if (window.innerWidth > 768) return;
 
             const lb = document.getElementById('image-lightbox');
             const lbImg = document.getElementById('lightbox-img');
             lbImg.src = imgSrc;
             lb.classList.remove('pointer-events-none');
-            
+
             // Kích hoạt hiệu ứng Reflow (Trượt và Zoom)
             setTimeout(() => {
                 lb.classList.remove('opacity-0');
@@ -1978,19 +2104,19 @@
             }, 10);
         }
 
-        window.closeLightbox = function() {
+        window.closeLightbox = function () {
             const lb = document.getElementById('image-lightbox');
             const lbImg = document.getElementById('lightbox-img');
-            
+
             // Kích hoạt hiệu ứng thu nhỏ
             lb.classList.add('opacity-0');
             lbImg.classList.remove('scale-100');
             lbImg.classList.add('scale-90');
-            
+
             // Trả lại tài nguyên sau khi hiệu ứng kết thúc
-            setTimeout(() => { 
-                lb.classList.add('pointer-events-none'); 
-                lbImg.src = ""; 
+            setTimeout(() => {
+                lb.classList.add('pointer-events-none');
+                lbImg.src = "";
             }, 400);
         }
 
@@ -2011,7 +2137,7 @@
                 gridElement.style.opacity = 0;
                 setTimeout(() => {
                     gridElement.innerHTML = '';
-                    if (filteredProducts.length === 0) { gridElement.innerHTML = `<div class="col-span-full text-center py-10 font-serif italic text-primary/50">Danh mục này hiện chưa có tuyệt tác nào.</div>`; paginationContainer.style.opacity = 0; paginationContainer.style.pointerEvents = 'none'; gridElement.style.opacity = 1; return; }
+                    if (filteredProducts.length === 0) { gridElement.innerHTML = `<div class="col-span-full text-center py-10 font-serif italic text-primary/50">Danh mục này hiện chưa có sản phẩm nào.</div>`; paginationContainer.style.opacity = 0; paginationContainer.style.pointerEvents = 'none'; gridElement.style.opacity = 1; return; }
 
                     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const productsToShow = filteredProducts.slice(startIndex, endIndex); const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
@@ -2045,12 +2171,12 @@
             }
 
             // CỖ MÁY LỌC TỐI THƯỢNG (DANH MỤC + KHOẢNG GIÁ + SẮP XẾP)
-            window.filterCategory = function (cat) { 
-                currentCategory = cat; 
-                applyMasterFilter(); 
+            window.filterCategory = function (cat) {
+                currentCategory = cat;
+                applyMasterFilter();
             }
 
-            window.applyMasterFilter = function() {
+            window.applyMasterFilter = function () {
                 // 1. Lọc theo danh mục trước
                 let tempProducts = currentCategory === 'all' ? [...ALL_PRODUCTS] : ALL_PRODUCTS.filter(p => p.category === currentCategory);
 
@@ -2082,23 +2208,23 @@
             btnPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderProductsList(); } }); btnNext.addEventListener('click', () => { const total = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE); if (currentPage < total) { currentPage++; renderProductsList(); } });
 
             // KHỞI ĐỘNG PRELOADER VÀ SLIDER
-            const intro = document.getElementById("luxury-intro"); 
-            setTimeout(() => document.getElementById("intro-text").style.opacity = 1, 300); 
-            setTimeout(() => document.getElementById("intro-text").style.opacity = 0, 1500); 
-            setTimeout(() => document.getElementById("bloom-container").classList.add("blooming"), 1800); 
-            setTimeout(() => document.getElementById("light-burst").classList.add("expand"), 3000); 
-            setTimeout(() => intro.style.opacity = 0, 3700); 
+            const intro = document.getElementById("luxury-intro");
+            setTimeout(() => document.getElementById("intro-text").style.opacity = 1, 300);
+            setTimeout(() => document.getElementById("intro-text").style.opacity = 0, 1500);
+            setTimeout(() => document.getElementById("bloom-container").classList.add("blooming"), 1800);
+            setTimeout(() => document.getElementById("light-burst").classList.add("expand"), 3000);
+            setTimeout(() => intro.style.opacity = 0, 3700);
 
             window.addEventListener('scroll', () => { const h = document.getElementById('main-header'); window.scrollY > 50 ? (h.classList.add('scrolled'), h.classList.remove('hero-mode')) : (h.classList.remove('scrolled'), h.classList.add('hero-mode')); });
 
-            const slides = document.querySelectorAll('.slide'); 
-            let active = 0; 
+            const slides = document.querySelectorAll('.slide');
+            let active = 0;
             let slideInterval;
 
             // 3. THỜI KHẮC MÀN CHÀO KẾT THÚC (4200ms)
-            setTimeout(() => { 
-                document.body.classList.add("is-loaded"); 
-                intro.remove(); 
+            setTimeout(() => {
+                document.body.classList.add("is-loaded");
+                intro.remove();
 
                 // CHÍNH LÀ LÚC NÀY: Bơm sự sống (class active) vào Slide đầu tiên!
                 // Lập tức, bức ảnh nền sẽ bắt đầu zoom từ từ (scale 1.1 -> 1) ĐỒNG THỜI với lúc chữ bay lên.
@@ -2107,85 +2233,85 @@
                 // Khởi động động cơ 11 giây tự động chuyển
                 resetSlideInterval();
             }, 4200);
-            
-            window.goToSlide = (i) => { 
-                slides[active].classList.remove('active'); 
-                active = (i + 6) % 6; 
-                slides[active].classList.add('active'); 
-                document.getElementById('current-slide').innerText = `0${active+1}`; 
-                document.getElementById('progress-bar').style.width = `${((active+1)/6)*100}%`; 
+
+            window.goToSlide = (i) => {
+                slides[active].classList.remove('active');
+                active = (i + 6) % 6;
+                slides[active].classList.add('active');
+                document.getElementById('current-slide').innerText = `0${active + 1}`;
+                document.getElementById('progress-bar').style.width = `${((active + 1) / 6) * 100}%`;
                 resetSlideInterval(); // Reset lại thời gian khi có thao tác chuyển
             };
-            
-            document.getElementById('btn-next').onclick = () => goToSlide(active+1); 
-            document.getElementById('btn-prev').onclick = () => goToSlide(active-1);
+
+            document.getElementById('btn-next').onclick = () => goToSlide(active + 1);
+            document.getElementById('btn-prev').onclick = () => goToSlide(active - 1);
 
             // ĐỘNG CƠ TỰ ĐỘNG CHUYỂN SLIDE MỖI 11 GIÂY (11000 mili-giây)
             function resetSlideInterval() {
                 if (slideInterval) clearInterval(slideInterval);
-                slideInterval = setInterval(() => { 
+                slideInterval = setInterval(() => {
                     // Tự động chuyển sang slide tiếp theo
-                    goToSlide(active + 1); 
+                    goToSlide(active + 1);
                 }, 11000);
             }
-            
+
             // Kích hoạt động cơ ngay khi tải trang
             resetSlideInterval();
             let tsX = 0, teX = 0; document.getElementById('hero-section').addEventListener('touchstart', e => { tsX = e.changedTouches[0].screenX; }, { passive: true }); document.getElementById('hero-section').addEventListener('touchend', e => { teX = e.changedTouches[0].screenX; if (tsX - teX > 50) goToSlide(active + 1); if (teX - tsX > 50) goToSlide(active - 1); }, { passive: true });
         });
 
         // ==========================================
-// CUSTOM FILTER UI LOGIC - MONOLITHIC EDITION
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-    const trigger = document.getElementById('custom-sort-trigger');
-    const menu = document.getElementById('custom-sort-menu');
-    const icon = document.getElementById('custom-sort-icon');
-    const textDisplay = document.getElementById('custom-sort-text');
-    const hiddenSelect = document.getElementById('price-sort-filter');
-    const options = document.querySelectorAll('.sort-option');
+        // CUSTOM FILTER UI LOGIC - MONOLITHIC EDITION
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const trigger = document.getElementById('custom-sort-trigger');
+            const menu = document.getElementById('custom-sort-menu');
+            const icon = document.getElementById('custom-sort-icon');
+            const textDisplay = document.getElementById('custom-sort-text');
+            const hiddenSelect = document.getElementById('price-sort-filter');
+            const options = document.querySelectorAll('.sort-option');
 
-    if(!trigger) return;
+            if (!trigger) return;
 
-    // Mở/Đóng menu mượt mà
-    trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('open');
-        icon.classList.toggle('rotate');
-    });
+            // Mở/Đóng menu mượt mà
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('open');
+                icon.classList.toggle('rotate');
+            });
 
-    document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && !trigger.contains(e.target)) {
-            menu.classList.remove('open');
-            icon.classList.remove('rotate');
-        }
-    });
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && !trigger.contains(e.target)) {
+                    menu.classList.remove('open');
+                    icon.classList.remove('rotate');
+                }
+            });
 
-    // Lựa chọn option
-    options.forEach(option => {
-        option.addEventListener('click', () => {
-            options.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-            
-            const val = option.getAttribute('data-value');
-            
-            // Cập nhật text nhưng CỐ ĐỊNH font chữ, không làm gãy trải nghiệm thị giác
-            textDisplay.innerText = option.innerText.trim();
+            // Lựa chọn option
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
 
-            // Đồng bộ dữ liệu ngầm
-            hiddenSelect.value = val;
-            menu.classList.remove('open');
-            icon.classList.remove('rotate');
-            
-            if (typeof applyMasterFilter === 'function') {
-                applyMasterFilter();
-            }
+                    const val = option.getAttribute('data-value');
+
+                    // Cập nhật text nhưng CỐ ĐỊNH font chữ, không làm gãy trải nghiệm thị giác
+                    textDisplay.innerText = option.innerText.trim();
+
+                    // Đồng bộ dữ liệu ngầm
+                    hiddenSelect.value = val;
+                    menu.classList.remove('open');
+                    icon.classList.remove('rotate');
+
+                    if (typeof applyMasterFilter === 'function') {
+                        applyMasterFilter();
+                    }
+                });
+            });
+
+            // Trạng thái mặc định
+            document.querySelector('.sort-option[data-value="default"]').classList.add('selected');
         });
-    });
-
-    // Trạng thái mặc định
-    document.querySelector('.sort-option[data-value="default"]').classList.add('selected');
-});
     </script>
 </body>
 
