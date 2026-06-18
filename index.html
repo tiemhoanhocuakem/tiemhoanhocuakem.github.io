@@ -1633,8 +1633,8 @@
         // XỬ LÝ FORMAT TIỀN TỆ (KHÔNG LỖI 0k)
         function formatVND(value) {
             let num = Number(value) || 0;
-            const styleVND = `<span class="text-[0.7em] font-normal opacity-70 ml-0.5 inline-block -translate-y-[1px]">VNĐ</span>`;
-            return num === 0 ? `0 ${styleVND}` : `${num.toLocaleString('vi-VN')} ${styleVND}`;
+            // Loại bỏ hoàn toàn điều kiện tự nhân 1000 để phản ánh chính xác 100% dữ liệu gốc từ Sheets
+            return num === 0 ? "0 VNĐ" : num.toLocaleString('vi-VN') + ' VNĐ';
         }
 
         // LẤY DỮ LIỆU TỪ SHEET
