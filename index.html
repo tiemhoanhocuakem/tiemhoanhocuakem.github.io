@@ -357,8 +357,30 @@
         .hero-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(11, 21, 31, 0.7) 0%, rgba(11, 21, 31, 0.1) 50%, rgba(11, 21, 31, 0.4) 100%);
+            background:
+                linear-gradient(to bottom, rgba(20, 37, 52, 0.5) 0%, transparent 20%, transparent 80%, rgba(20, 37, 52, 0.6) 100%),
+                radial-gradient(ellipse 60% 80% at 20% 50%, rgba(11, 21, 31, 0.65) 0%, rgba(11, 21, 31, 0) 100%);
             z-index: 1;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero-overlay {
+                background:
+                    linear-gradient(to bottom, rgba(20, 37, 52, 0.5) 0%, transparent 20%, transparent 80%, rgba(20, 37, 52, 0.7) 100%),
+                    radial-gradient(circle at 50% 50%, rgba(11, 21, 31, 0.6) 0%, rgba(11, 21, 31, 0) 75%);
+            }
+        }
+
+        .text-shadow-lg {
+            text-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.4),
+                0 8px 15px rgba(0, 0, 0, 0.3),
+                0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-shadow-sm {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .hero-content {
@@ -646,7 +668,6 @@
             visibility: hidden;
             /* Đồng bộ hiệu ứng mượt mà cho cả transform lẫn vị thế hiển thị */
             transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), visibility 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            /* BỎ DÒNG box-shadow cũ ở đây đi */
             display: flex;
             flex-direction: column;
         }
@@ -887,7 +908,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Hoa Tươi.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Đừng để thời gian làm phai nhạt những điều tốt đẹp, hãy để hoa tươi thay lời muốn nói vì mỗi
                         cánh hoa là một hơi thở của sự sống, mang theo chân tình gửi gắm đến người thương.
                     </p>
@@ -909,7 +930,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Hoa Kẽm Nhung.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Mỗi cánh hoa kẽm nhung là một câu chuyện kiên nhẫn, sự mềm mại đến lạ kỳ của chất liệu kẽm nhung
                         hòa quyện cùng sự khéo léo của đôi bàn tay tạo nên một món quà độc bản không bao giờ phai nhạt.
                     </p>
@@ -931,7 +952,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Hoa Sáp.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Nếu vẻ đẹp của hoa tươi là một thoáng chốc huy hoàng, thì hoa sáp chính là đóa hoa của sự vĩnh
                         cửu, lặng lẽ tỏa hương và mãi kiêu sa.</p>
                     <div class="anim-text delay-3"><button
@@ -953,7 +974,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Hoa Bánh Kẹo.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Gói trọn cả thế giới yêu thương vào trong những chiếc kẹo nhỏ xinh, để tình cảm của bạn không
                         chỉ để ngắm và còn có thể cảm nhận bằng cả vị giác.</p>
                     <div class="anim-text delay-3"><button
@@ -974,7 +995,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Hoa Gấu Bông.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Gói ghém cả bầu trời dễ thương vào trong một bó hoa, tặng hoa gấu, tặng cả sự cưng chiều dành
                         riêng cho người ấy.</p>
                     <div class="anim-text delay-3"><button
@@ -996,7 +1017,7 @@
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
                         Thiết Kế <br> <span class="italic font-light text-accent">Tháp Bánh Kẹo.</span></h2>
                     <p
-                        class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
+                        class="text-sm md:text-base text-white/90 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3 text-shadow-sm">
                         Gói trọn sự đủ đầy trong một tuyệt tác, tháp bánh kẹo là lựa chọn hoàn hảo để gửi gắm lời chúc
                         về một cuộc sống ngọt ngào và thành công rực rỡ.</p>
                     <div class="anim-text delay-3"><button
@@ -1115,7 +1136,7 @@
                     class="flex items-center bg-transparent border-b border-primary/20 hover:border-primary transition-colors duration-400 group focus-within:border-primary pb-1">
                     <div class="relative flex items-center">
                         <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
-                        <input type="number" id="min-price-filter" placeholder="0" oninput="applyMasterFilter()"
+                        <input type="number" id="min-price-filter" placeholder="Min" oninput="applyMasterFilter()"
                             class="w-20 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                     </div>
 
@@ -1123,7 +1144,7 @@
 
                     <div class="relative flex items-center">
                         <span class="text-primary/40 text-[10px] font-bold mr-1">₫</span>
-                        <input type="number" id="max-price-filter" placeholder="Vô cực" oninput="applyMasterFilter()"
+                        <input type="number" id="max-price-filter" placeholder="Max" oninput="applyMasterFilter()"
                             class="w-24 bg-transparent text-primary font-serif text-lg italic focus:outline-none placeholder:font-sans placeholder:text-sm placeholder:not-italic placeholder:text-primary/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                     </div>
                 </div>
