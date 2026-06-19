@@ -67,6 +67,8 @@
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            will-change: transform;
         }
 
         /* 2. TIÊU DIỆT LỚP ÁM XANH/VÀNG AUTOFILL CỦA TRÌNH DUYỆT TRÊN FORM */
@@ -640,15 +642,22 @@
             background: #FDFDFD;
             z-index: 101;
             transform: translateX(100%);
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            box-shadow: -20px 0 50px rgba(0, 0, 0, 0.1);
+            /* Bổ sung visibility để ẩn bóng hoàn toàn khi đóng */
+            visibility: hidden;
+            /* Đồng bộ hiệu ứng mượt mà cho cả transform lẫn vị thế hiển thị */
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), visibility 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            /* BỎ DÒNG box-shadow cũ ở đây đi */
             display: flex;
             flex-direction: column;
         }
 
+        /* KHI MỞ: Bật lại bóng và trạng thái hiển thị hiển nhiên */
         #cart-drawer.open,
         #auth-drawer.open {
             transform: translateX(0);
+            visibility: visible;
+            box-shadow: -20px 0 50px rgba(0, 0, 0, 0.1);
+            /* Chỉ đổ bóng khi mở ra */
         }
 
         .drawer-section,
@@ -916,7 +925,7 @@
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Lưu Hương</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Hoa Kiêu Sa</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
@@ -937,7 +946,8 @@
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Ngọt Ngào</span>
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đóa Hoa Ngọt
+                            Ngào</span>
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
@@ -962,7 +972,7 @@
                     </div>
                     <h2
                         class="font-serif text-5xl md:text-7xl lg:text-[6rem] text-white leading-[1.05] mb-6 anim-text delay-2 text-shadow-lg">
-                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Gấu.</span></h2>
+                        Thiết Kế <br> <span class="italic font-light text-accent">Hoa Gấu Bông.</span></h2>
                     <p
                         class="text-sm md:text-base text-white/80 font-light leading-relaxed max-w-md mx-auto md:mx-0 mb-10 anim-text delay-3">
                         Gói ghém cả bầu trời dễ thương vào trong một bó hoa, tặng hoa gấu, tặng cả sự cưng chiều dành
@@ -979,7 +989,7 @@
                 <div class="hero-content mx-auto">
                     <div class="flex items-center justify-center md:justify-start gap-3 mb-6 anim-text delay-1">
                         <div class="hidden md:block h-[1px] w-12 bg-white"></div><span
-                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Đài Hoa Ngọt
+                            class="text-[10px] font-medium uppercase tracking-[0.3em] text-white">Sự Ngọt
                             Ngào</span>
                     </div>
                     <h2
@@ -1031,10 +1041,10 @@
                 <div id="category-nav" class="flex gap-4 md:gap-6 items-center flex-nowrap">
                     <button data-cat="all" class="cat-btn active text-primary pb-2 whitespace-nowrap">Tất cả</button>
                     <button data-cat="hoa-tuoi" class="cat-btn pb-2 whitespace-nowrap">Hoa Tươi</button>
-                    <button data-cat="hoa-kem" class="cat-btn pb-2 whitespace-nowrap">Hoa Kẽm</button>
+                    <button data-cat="hoa-kem" class="cat-btn pb-2 whitespace-nowrap">Hoa Kẽm Nhung</button>
                     <button data-cat="hoa-sap" class="cat-btn pb-2 whitespace-nowrap">Hoa Sáp</button>
-                    <button data-cat="hoa-keo" class="cat-btn pb-2 whitespace-nowrap">Hoa Kẹo</button>
-                    <button data-cat="hoa-gau" class="cat-btn pb-2 whitespace-nowrap">Hoa Gấu</button>
+                    <button data-cat="hoa-keo" class="cat-btn pb-2 whitespace-nowrap">Hoa Bánh Kẹo</button>
+                    <button data-cat="hoa-gau" class="cat-btn pb-2 whitespace-nowrap">Hoa Gấu Bông</button>
                     <button data-cat="thap-banh" class="cat-btn pb-2 whitespace-nowrap">Tháp Bánh Kẹo</button>
                     <button data-cat="khac" class="cat-btn pb-2 whitespace-nowrap">Khác</button>
                 </div>
@@ -1159,23 +1169,12 @@
 
                 <span class="w-1 h-1 bg-white/20 rounded-full hidden md:block"></span>
 
-                <!-- Zalo Cá Nhân (Bản Chuẩn 100% - Đã cân bằng thị giác to hơn một chút) -->
+                <!-- Zalo Cá Nhân (Hiển thị màu nguyên bản của file ảnh) -->
                 <a href="https://zalo.me/0969670034" target="_blank"
                     class="group flex items-center gap-3 hover:text-white transition-colors duration-300">
-                    <svg class="w-[22px] h-[22px] group-hover:scale-110 transition-transform duration-300"
-                        viewBox="0 0 100 100" fill="currentColor">
-                        <defs>
-                            <mask id="zalo-mask-authentic">
-                                <!-- Lớp 1: Khung bong bóng Zalo -->
-                                <path fill="white"
-                                    d="M50,10 C22.4,10 0,29.9 0,54.5 C0,68 6.8,80.1 17.7,87.6 L14,98.7 C13.6,99.9 14.8,101 15.9,100.5 L29.5,94 C35.8,96.8 42.7,98.5 50,98.5 C77.6,98.5 100,78.6 100,54.5 C100,29.9 77.6,10 50,10 Z" />
-                                <!-- Lớp 2: Chữ Zalo Authentic đục thủng -->
-                                <image href="https://cdn.simpleicons.org/zalo/black" x="18" y="22" width="64"
-                                    height="64" />
-                            </mask>
-                        </defs>
-                        <rect width="100" height="100" fill="currentColor" mask="url(#zalo-mask-authentic)" />
-                    </svg>
+                    <img src="icon-zalo.png" alt="Zalo"
+                        class="w-[20px] h-[20px] opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+                        style="filter: grayscale(100%) invert(100%) brightness(200%); mix-blend-mode: screen;">
                     0969.670.034
                 </a>
             </div>
@@ -1638,25 +1637,43 @@
         }
 
         // LẤY DỮ LIỆU TỪ SHEET
-        async function fetchStoreData() {
+        // Bổ sung isSilent = false, và thêm timestamp (new Date().getTime()) để phá Cache của trình duyệt
+        async function fetchStoreData(isSilent = false) {
             try {
-                const response = await fetch(GOOGLE_API_URL + '?action=getStorefront');
+                // Cache-Busting: Buộc trình duyệt phải lấy data mới nhất từ máy chủ
+                const response = await fetch(GOOGLE_API_URL + '?action=getStorefront&_t=' + new Date().getTime());
                 const data = await response.json();
+
                 if (data.status === 'success') {
                     ALL_PRODUCTS = data.products.map(p => ({ ...p, price: Number(p.price) }));
-                    // Ép toàn bộ các trường số lượng và định mức về dạng Number chuẩn để tránh lỗi toán học NaN
                     ALL_VOUCHERS = data.vouchers.map(v => ({
                         ...v,
                         value: Number(v.value),
                         usedCount: Number(v.usedCount),
                         maxUsage: Number(v.maxUsage)
                     }));
-                    if (ALL_PRODUCTS.length === 0) { document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có sản phẩm nào."; return; }
-                    initStorefront();
-                } else { throw new Error("API Error"); }
+
+                    if (ALL_PRODUCTS.length === 0) {
+                        document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có sản phẩm nào.";
+                        return;
+                    }
+
+                    // XỬ LÝ CHÍNH KHÔNG GÂY NHÁY:
+                    if (isSilent) {
+                        // Nếu update ngầm (khi đặt đơn/hủy đơn), CHỈ render lại Voucher, KHÔNG render lại lưới sản phẩm
+                        renderVouchersOnly();
+                    } else {
+                        // Nếu là lần tải trang đầu tiên
+                        initStorefront();
+                    }
+                } else {
+                    throw new Error("API Error");
+                }
             } catch (error) {
                 console.error("Lỗi đồng bộ Sheets:", error);
-                document.getElementById('product-loading').innerHTML = "Hệ thống đang bảo trì. Vui lòng quay lại sau ít phút.";
+                if (!isSilent) {
+                    document.getElementById('product-loading').innerHTML = "Hệ thống đang bảo trì. Vui lòng quay lại sau ít phút.";
+                }
             }
         }
 
@@ -1665,20 +1682,10 @@
             document.getElementById('product-grid').classList.remove('hidden');
             document.getElementById('master-filter-container').classList.remove('hidden');
 
-            const vContainer = document.getElementById('public-vouchers-container');
-            if (ALL_VOUCHERS.length > 0) {
-                let vHtml = '';
-                ALL_VOUCHERS.forEach(v => {
-                    // LỌC 1: Nếu khách đã dùng mã này -> Tàng hình luôn
-                    if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
+            // Dùng hàm mới để render Voucher
+            renderVouchersOnly();
 
-                    // LỌC 2: Xử lý hiển thị chuẩn xác % hoặc VNĐ
-                    let displayValue = v.type === 'PERCENT' ? `Giảm ${v.value}%` : `Giảm ${formatVND(v.value)}`;
-
-                    vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}</span>`;
-                });
-                vContainer.innerHTML = vHtml;
-            }
+            // Gọi filterCategory lần đầu tải trang
             filterCategory('all');
         }
 
@@ -1759,9 +1766,7 @@
 
             setBtnLoading('btn-reset-trigger', true, 'ĐANG KHÔI PHỤC...');
             try {
-                const newPassHash = await sha256(newPass);
-                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordHash: newPassHash } }) }).then(r => r.json());
-
+                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordRaw: newPass } }) }).then(r => r.json());
                 if (res.status === 'success') {
                     luxuryToast(res.message);
                     document.getElementById('forgot-phone').value = ''; tempResetPhone = "";
@@ -1803,8 +1808,8 @@
         window.finalUserAction = async function () {
             setBtnLoading('btn-verify-otp', true, 'ĐANG XỬ LÝ...');
             const uid = document.getElementById('user-uid').value; const pass = document.getElementById('user-pass').value;
-            const passHash = pass ? await sha256(pass) : ""; const isEdit = uid ? true : false;
-            const payload = { action: isEdit ? 'updateUser' : 'registerUser', payload: { uid: uid, name: document.getElementById('user-name').value, phone: document.getElementById('user-phone').value, email: document.getElementById('user-email').value, passwordHash: passHash, address: document.getElementById('user-address').value, otp: document.getElementById('user-otp').value } };
+            const passRaw = pass ? pass : ""; const isEdit = uid ? true : false;
+            const payload = { action: isEdit ? 'updateUser' : 'registerUser', payload: { uid: uid, name: document.getElementById('user-name').value, phone: document.getElementById('user-phone').value, email: document.getElementById('user-email').value, passwordRaw: passRaw, address: document.getElementById('user-address').value, otp: document.getElementById('user-otp').value } };
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
                 if (res.status === 'success') {
@@ -1819,7 +1824,7 @@
             if (!phone || !pass) return luxuryToast("Vui lòng nhập đầy đủ SĐT và Mật khẩu!", true);
             setBtnLoading('btn-login-trigger', true, 'ĐANG ĐĂNG NHẬP...');
             try {
-                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', payload: { email: phone, passwordHash: await sha256(pass) } }) }).then(r => r.json());
+                const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', payload: { email: phone, passwordRaw: pass } }) }).then(r => r.json());
                 if (res.status === 'success') {
                     LOGGED_USER = res.user; luxuryToast(`Đăng nhập thành công. Chào bạn ${LOGGED_USER.name.split(' ').pop()}!`);
                     document.getElementById('nav-user-name').innerText = LOGGED_USER.name.split(' ').pop(); document.getElementById('form-name').value = LOGGED_USER.name; document.getElementById('form-phone').value = LOGGED_USER.phone; document.getElementById('form-address').value = LOGGED_USER.address || ''; document.getElementById('dash-welcome-title').innerText = LOGGED_USER.name + '.';
@@ -1835,7 +1840,7 @@
             if (orders.length === 0) { container.innerHTML = `<p class="italic text-secondary text-sm">Bạn chưa có sản phẩm nào.</p>`; return; }
             let html = '';
             orders.reverse().forEach(o => {
-                const statusColor = o.status === 'KHÁCH HỦY' ? 'text-red-500' : (o.status === 'ĐÃ XÁC NHẬN' ? 'text-green-600' : 'text-blue-600');
+                const statusColor = o.status === 'ĐƠN HỦY' ? 'text-red-500' : (o.status === 'ĐÃ XÁC NHẬN' ? 'text-green-600' : 'text-blue-600');
 
                 // Trích xuất Tên tuyệt tác từ cột cartDetails JSON
                 let itemsHtml = '';
@@ -1878,14 +1883,54 @@
             container.innerHTML = html;
         }
 
+        // HÀM MỚI: ĐỒNG BỘ DỮ LIỆU NGẦM XUYÊN SUỐT HỆ THỐNG
+        window.refreshAllData = async function () {
+            if (!LOGGED_USER) return;
+            try {
+                const res = await fetch(GOOGLE_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'refreshUserData', payload: { uid: LOGGED_USER.uid } })
+                }).then(r => r.json());
+
+                if (res.status === 'success') {
+                    USED_VOUCHERS = res.usedVouchers || [];
+                    renderUserOrdersList(res.orders || []);
+                }
+
+                await fetchStoreData(true); // Cập nhật ngầm danh sách Voucher & Sản phẩm
+
+                // --- ĐOẠN CODE BỔ SUNG: TỰ ĐỘNG ÁP DỤNG MÃ TỐT NHẤT ---
+                // Nếu bạn có hàm tự động áp dụng voucher (ví dụ: autoApplyBestVoucher)
+                // hoặc hàm tính toán lại giỏ hàng, hãy gọi nó ở đây.
+                const voucherInput = document.getElementById('voucher-input');
+
+                // Nếu ô input đang trống, thử tự động tìm và áp mã
+                if (voucherInput && !voucherInput.value) {
+                    if (typeof autoApplyBestVoucher === 'function') {
+                        autoApplyBestVoucher();
+                    }
+                } else if (voucherInput && voucherInput.value) {
+                    // Nếu đang có sẵn mã, bắt hệ thống validate lại mã đó với data mới
+                    if (typeof validateVoucherCode === 'function') {
+                        validateVoucherCode();
+                    }
+                }
+
+                // Render lại giỏ hàng để cập nhật số tiền
+                if (typeof renderCartUI === 'function') renderCartUI();
+
+            } catch (e) {
+                console.error("Lỗi đồng bộ ngầm:", e);
+            }
+        }
+
         window.cancelOrderCustomer = async function (orderId) {
-            showConfirmModal('Hủy Tuyệt Tác', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
+            showConfirmModal('Hủy đơn hàng', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
                 try {
                     const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'cancelOrderCustomer', payload: { orderId: orderId } }) }).then(r => r.json());
                     if (res.status === 'success') {
                         luxuryToast("Đã hủy đơn hàng thành công.");
-                        toggleAuthDrawer();
-                        setTimeout(() => { loginUser(); toggleAuthDrawer(); }, 500);
+                        refreshAllData();
                     }
                 } catch (e) { luxuryToast("Lỗi kết nối", true); }
                 closeConfirmModal();
@@ -2073,12 +2118,70 @@
             e.preventDefault();
             if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập trước khi thanh toán!", true);
             if (cart.length === 0) return luxuryToast("Giỏ hàng đang rỗng!", true);
-            setBtnLoading('btn-submit-order', true, 'ĐANG MÃ HÓA ĐƠN...');
+            setBtnLoading('btn-submit-order', true, 'ĐANG XÁC NHẬN ĐƠN...');
             const orderData = { action: 'createOrder', payload: { uid: LOGGED_USER.uid, customerName: document.getElementById('form-name').value, phone: document.getElementById('form-phone').value, address: document.getElementById('form-address').value, note: document.getElementById('form-note').value, voucher: appliedVoucherCode || "KHÔNG DÙNG", cart: cart } };
             try {
                 const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json());
                 if (res.status === 'success') {
-                    cart = []; document.getElementById('cart-badge').innerText = '0'; appliedVoucherCode = ""; appliedDiscountAmount = 0; document.getElementById('voucher-input').value = ""; renderCartUI(); switchView('success-view'); e.target.reset(); luxuryToast("Gửi đơn hàng thành công!"); setTimeout(() => loginUser(), 1500);
+                    // 1. Dọn dẹp giỏ hàng và giao diện (Giữ nguyên logic cũ của bạn)
+                    cart = [];
+                    document.getElementById('cart-badge').innerText = '0';
+                    appliedVoucherCode = "";
+                    appliedDiscountAmount = 0;
+                    document.getElementById('voucher-input').value = "";
+                    renderCartUI();
+                    switchView('success-view');
+                    e.target.reset();
+                    document.getElementById('form-name').value = LOGGED_USER.name;
+                    document.getElementById('form-phone').value = LOGGED_USER.phone;
+                    document.getElementById('form-address').value = LOGGED_USER.address || '';
+                    luxuryToast("🎉 Gửi đơn hàng thành công!");
+
+                    // TẠM BIỆT DÒNG NÀY: setTimeout(() => loginUser(), 1500);
+
+                    // 2. CẬP NHẬT GIAO DIỆN LỊCH SỬ ĐƠN HÀNG "SLYTH" (ÂM THẦM)
+                    const dashboardList = document.getElementById('dashboard-orders-list');
+
+                    // Nếu danh sách đang trống, xóa chữ "Bạn chưa có sản phẩm nào"
+                    if (dashboardList.innerHTML.includes("Bạn chưa có sản phẩm nào")) {
+                        dashboardList.innerHTML = '';
+                    }
+
+                    // Render danh sách sản phẩm vừa mua
+                    let itemsHtml = '<ul class="space-y-3 mb-4 border-t border-primary/10 pt-4">';
+                    orderData.payload.cart.forEach(i => {
+                        itemsHtml += `<li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5">
+            <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${i.name}</span>
+            <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span>
+        </li>`;
+                    });
+                    itemsHtml += '</ul>';
+
+                    // Render thông tin Voucher (Nếu có)
+                    const voucherHtml = (orderData.payload.voucher && orderData.payload.voucher !== 'KHÔNG DÙNG')
+                        ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${orderData.payload.voucher}</p>` : '';
+
+                    // Lắp ráp thẻ (Card) Đơn hàng mới
+                    const newOrderCard = `
+    <div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300">
+        <div class="flex justify-between items-center font-bold text-primary mb-1">
+            <span class="tracking-widest text-[11px]">${res.orderId}</span>
+            <span class="text-[10px] uppercase tracking-widest text-blue-600 bg-slate-50 px-2 py-1 rounded">CHƯA XÁC NHẬN</span>
+        </div>
+        <p class="text-[10px] text-secondary font-medium mb-2">Vừa xong</p>
+        ${itemsHtml}
+        <div class="flex flex-col border-t border-primary/5 pt-3 mt-1">
+            <div class="flex justify-between items-end">
+                <span class="font-serif font-bold text-primary text-xl">${formatVND(res.finalTotal)}</span>
+                <button onclick="cancelOrderCustomer('${res.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>
+            </div>
+            ${voucherHtml}
+        </div>
+    </div>`;
+
+                    // Chèn đơn hàng mới lên trên cùng của danh sách
+                    dashboardList.insertAdjacentHTML('afterbegin', newOrderCard);
+                    refreshAllData();
                 } else { luxuryToast(res.message, true); }
             } catch (error) { luxuryToast("Lỗi kết nối CSDL", true); }
             setBtnLoading('btn-submit-order', false);
@@ -2312,6 +2415,26 @@
             // Trạng thái mặc định
             document.querySelector('.sort-option[data-value="default"]').classList.add('selected');
         });
+
+        // HÀM MỚI: Tách riêng việc render Voucher để không làm nháy lưới sản phẩm
+        function renderVouchersOnly() {
+            const vContainer = document.getElementById('public-vouchers-container');
+            if (!vContainer) return;
+
+            if (ALL_VOUCHERS.length > 0) {
+                let vHtml = '';
+                ALL_VOUCHERS.forEach(v => {
+                    // Kiểm tra khách đã dùng mã chưa
+                    if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
+                    // Xử lý hiển thị phần trăm hoặc tiền
+                    let displayValue = v.type === 'PERCENT' ? `Giảm ${v.value}%` : `Giảm ${formatVND(v.value)}`;
+                    vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}</span>`;
+                });
+                vContainer.innerHTML = vHtml;
+            } else {
+                vContainer.innerHTML = '';
+            }
+        }
     </script>
 </body>
 
