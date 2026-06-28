@@ -924,49 +924,42 @@
         }
 
         /* ==========================================
-   BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - IMAGE REPLACEMENT)
-========================================== */
-@media (prefers-color-scheme: dark) and (max-width: 767px) {
-    
-    /* 1. NEO CHẶT MÀU NỀN TỐI (KHÔNG DÙNG TRANSPARENT NỮA) 
-       Ta phải khai báo thẳng nền màu Xanh Than. 
-       Trình duyệt thấy nền đã tối sẵn, nó sẽ không cố làm đen các phần tử bên trên nữa. */
-    #luxury-intro {
-        background: #142534 !important;
-        isolation: isolate;
-    }
+        BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - IMAGE REPLACEMENT)
+        ========================================== */
+        @media (prefers-color-scheme: dark) and (max-width: 767px) {
+            #luxury-intro {
+                background: #142534 !important;
+                /* Force GPU rendering để khóa layer nền */
+                transform: translateZ(0);
+            }
 
-    /* 2. THUẬT BIẾN HÌNH CÁNH HOA THÀNH ẢNH
-       Xóa toàn bộ màu nền/gradient cũ. Thay vào đó, chèn trực tiếp 1 pixel ảnh TRẮNG TINH (Base64).
-       Thuộc tính 'content' biến div thành ảnh, 'object-fit' kéo giãn ảnh ra 45px.
-       Trình duyệt KHÔNG BAO GIỜ dám đảo màu ảnh! */
-    .petal-intro {
-        background: none !important;
-        box-shadow: none !important; 
-        
-        /* Ma thuật nằm ở 2 dòng này: */
-        content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
-        object-fit: cover !important;
-        
-        opacity: 0.9 !important; /* Vẫn giữ được độ mờ nhẹ nhàng */
-    }
+            .petal-intro {
+                /* HỦY BỎ ảnh Base64 lỗi thời */
+                content: none !important;
 
-    /* 3. VĂN BẢN TỎA SÁNG
-       Khi nền #luxury-intro đã là màu tối (#142534), ta cứ hiên ngang set màu trắng.
-       Trình duyệt tự hiểu tương phản đã chuẩn, nó sẽ để yên. */
-    #intro-text {
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
-        text-shadow: 0 4px 20px rgba(255, 255, 255, 0.4) !important;
-        filter: none !important; /* Gỡ bỏ mọi lớp kính râm của trình duyệt */
-    }
+                /* Dùng màu rgba Bán Trong Suốt (White 15%). 
+           Thuật toán ép Dark Mode thường "mù" hoặc bỏ qua 
+           việc đảo màu các phần tử có alpha channel thấp */
+                background: rgba(255, 255, 255, 0.15) !important;
 
-    /* 4. CỤC SÁNG CHUYỂN CẢNH (Khớp với màu nền) */
-    .light-burst {
-        background: #142534 !important;
-        box-shadow: 0 0 100px 50px #142534 !important;
-    }
-}
+                /* Tạo hiệu ứng sáng nhẹ nhàng bằng bóng đổ viền */
+                box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1),
+                    0 0 20px rgba(235, 242, 246, 0.1) !important;
+
+                /* Thêm kính mờ (nếu muốn cánh hoa nhìn luxury hơn) */
+                backdrop-filter: blur(4px);
+            }
+
+            #intro-text {
+                color: rgba(255, 255, 255, 0.95) !important;
+                text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
+            }
+
+            .light-burst {
+                background: rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 0 100px 50px rgba(255, 255, 255, 0.1) !important;
+            }
+        }
     </style>
 </head>
 
