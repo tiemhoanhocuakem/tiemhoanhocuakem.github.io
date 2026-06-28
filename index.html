@@ -925,38 +925,37 @@
 
         /* ==========================================
         BẢO VỆ UI: ÉP GIAO DIỆN DARK MODE TRÊN MOBILE CHO INTRO 
+        (PHIÊN BẢN VƯỢT TƯỜNG LỬA HỆ ĐIỀU HÀNH BẰNG SVG)
         ========================================== */
-        /* 1. Lệnh Cấm trình duyệt can thiệp thuật toán vào riêng khối Intro */
-        #luxury-intro {
-            color-scheme: only light !important;
-            forced-color-adjust: none !important;
-        }
-
         @media (prefers-color-scheme: dark) and (max-width: 767px) {
 
-            /* 2. Màu nền Intro: Tôi đã nâng tone sáng lên một chút (từ #0a131c lên #142534) 
-       để trên điện thoại OLED không bị thành màu đen kịt, giữ lại độ sang trọng */
+            /* 1. NGUỴ TRANG NỀN: Ép background thành trong suốt, dùng background-image chứa mã SVG 
+       để hệ điều hành tưởng đây là một bức ảnh và bỏ qua việc làm tối */
             #luxury-intro {
-                background: radial-gradient(circle at 50% 50%, #2c4a63 0%, #142534 100%) !important;
+                background-color: transparent !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3CradialGradient id='bg' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%232c4a63'/%3E%3Cstop offset='100%25' stop-color='%23142534'/%3E%3C/radialGradient%3E%3Crect width='100%25' height='100%25' fill='url(%23bg)'/%3E%3C/svg%3E") !important;
+                background-size: cover !important;
             }
 
-            /* 3. Cánh hoa phát sáng nhẹ nhàng */
+            /* 2. NGUỴ TRANG CÁNH HOA: Tương tự, biến khối màu linear-gradient thành file SVG */
             .petal-intro {
-                background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 0.9) 100%) !important;
+                background-color: transparent !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23e6e6e6'/%3E%3C/linearGradient%3E%3Crect width='100%25' height='100%25' fill='url(%23p)'/%3E%3C/svg%3E") !important;
                 box-shadow: 0 0 25px rgba(255, 255, 255, 0.4) !important;
             }
 
-            /* 4. Text nổi bật trên nền tối */
+            /* 3. BẢO VỆ TEXT: Hệ điều hành hay làm mờ chữ trắng (dimming), 
+       ta dùng -webkit-text-fill-color để khóa chết màu trắng sáng */
             #intro-text {
-                color: #FFFFFF !important;
+                color: transparent !important;
+                -webkit-text-fill-color: #FFFFFF !important;
                 text-shadow: 0 4px 20px rgba(255, 255, 255, 0.8) !important;
             }
 
-            /* 5. FIX QUAN TRỌNG: Xử lý cục sáng chuyển cảnh (.light-burst) 
-       Vì thân trang web bên dưới đã được trình duyệt chuyển sang Dark Mode (màu tối),
-       nên cục flashbang này cũng phải màu tối (#142534) để người dùng không bị "mù mắt" khi chuyển cảnh */
+            /* 4. CÚ NỔ ÁNH SÁNG: Phải khớp màu với thân trang web đã bị Dark Mode (#142534) */
             .light-burst {
-                background: #142534 !important;
+                background-color: transparent !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%23142534'/%3E%3C/svg%3E") !important;
                 box-shadow: 0 0 100px 50px #142534 !important;
             }
         }
