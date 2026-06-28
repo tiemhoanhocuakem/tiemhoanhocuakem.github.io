@@ -924,43 +924,47 @@
         }
 
         /* ==========================================
-        BẢO VỆ UI: ÉP GIAO DIỆN DARK MODE TRÊN MOBILE CHO INTRO 
-        (PHIÊN BẢN HACK BẰNG ẢNH PNG RASTER DÀNH RIÊNG CHO XIAOMI/SAMSUNG)
-        ========================================== */
+BẢO VỆ UI: ÉP GIAO DIỆN DARK MODE TRÊN MOBILE CHO INTRO 
+(VŨ KHÍ TỐI THƯỢNG: ĐIỂM MÙ MÀU XÁM + GPU FILTER)
+========================================== */
         @media (prefers-color-scheme: dark) and (max-width: 767px) {
 
-            /* 1. BACKGROUND: Ép thẳng một màu tối (#142534)
-            Khi thuật toán thấy nền đã đủ tối, nó sẽ lười biếng và không nhúng tay vào nữa */
+            /* 1. NỀN AN TOÀN: #142534 là màu đủ tối. Thuật toán của Samsung/Xiaomi 
+       chỉ đảo màu Sáng thành Tối, không bao giờ đảo màu Tối thành Sáng. 
+       Nên màu nền này sẽ được an toàn 100%. */
             #luxury-intro {
                 background: #142534 !important;
             }
 
-            /* 2. CÁNH HOA BẤT TỬ: 
-            Sử dụng một pixel ảnh PNG màu trắng (đã mã hóa Base64) làm nền. 
-            Trình duyệt tuyệt đối không bao giờ đảo màu file PNG. */
+            /* 2. CÁNH HOA BẤT TỬ (HACK): 
+       Gán màu xám #808080 để thuật toán không đảo ngược được. 
+       Sau đó dùng GPU (filter) kích sáng 1000% thành màu trắng rực rỡ. */
             .petal-intro {
-                background-color: transparent !important;
-                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
-                background-size: cover !important;
-                opacity: 0.8;
-                /* Tạo độ mờ ảo tự nhiên thay cho gradient */
-                box-shadow: 0 0 25px rgba(255, 255, 255, 0.4) !important;
+                background: #808080 !important;
+                background-image: none !important;
+                box-shadow: none !important;
+                /* Xóa bóng mờ cũ gây lỗi */
+
+                /* Ma thuật nằm ở đây: */
+                filter: brightness(1000%) grayscale(100%) drop-shadow(0 0 2px rgba(128, 128, 128, 0.4)) !important;
+                -webkit-filter: brightness(1000%) grayscale(100%) drop-shadow(0 0 2px rgba(128, 128, 128, 0.4)) !important;
             }
 
-            /* 3. VĂN BẢN TRONG SÁNG: 
-            Biến chữ thành trong suốt, sau đó lấy đúng cái ảnh PNG màu trắng ở trên "cắt" theo viền chữ (background-clip). 
-            Chữ của bạn giờ đây được tạc ra từ một bức ảnh trắng! */
+            /* 3. CHỮ XIN CHÀO: Áp dụng cùng nguyên lý "Trắng hóa từ Xám" */
             #intro-text {
-                color: transparent !important;
-                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
-                -webkit-background-clip: text !important;
-                background-clip: text !important;
-                text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5) !important;
+                color: #808080 !important;
+                text-shadow: none !important;
+                -webkit-text-fill-color: initial !important;
+                /* Phá vỡ các hack cũ */
+
+                /* Kích chữ lên trắng tinh cùng với bóng mờ */
+                filter: brightness(1000%) grayscale(100%) drop-shadow(0 2px 4px rgba(128, 128, 128, 0.5)) !important;
+                -webkit-filter: brightness(1000%) grayscale(100%) drop-shadow(0 2px 4px rgba(128, 128, 128, 0.5)) !important;
             }
 
-            /* 4. CÚ NỔ CHUYỂN CẢNH: Phải giữ màu tối để khớp với nền trang web bên dưới */
+            /* 4. CÚ NỔ ÁNH SÁNG: Khớp hoàn toàn với màu nền tối #142534 */
             .light-burst {
-                background-color: #142534 !important;
+                background: #142534 !important;
                 background-image: none !important;
                 box-shadow: 0 0 100px 50px #142534 !important;
             }
