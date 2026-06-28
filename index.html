@@ -924,40 +924,55 @@
         }
 
         /* ==========================================
-        BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - IMAGE REPLACEMENT)
-        ========================================== */
+   BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - NUCLEAR OPTION)
+   ========================================== */
         @media (prefers-color-scheme: dark) and (max-width: 767px) {
+
+            /* 1. KHIẾN THUẬT TOÁN ĐẦU HÀNG TỪ VÒNG GỬI XE */
             #luxury-intro {
                 background: #142534 !important;
-                /* Force GPU rendering để khóa layer nền */
-                transform: translateZ(0);
+                /* Bùa chú W3C: Tuyên bố thẳng "Layer này ĐÃ ĐƯỢC DEV THIẾT KẾ CHO DARK MODE". 
+           Thuật toán sẽ tự động bỏ qua, không dám lôi code ra đảo ngược nữa! */
+                color-scheme: dark !important;
+                isolation: isolate;
             }
 
+            /* 2. NGHỆ THUẬT TÀNG HÌNH QUANG HỌC */
             .petal-intro {
-                /* HỦY BỎ ảnh Base64 lỗi thời */
                 content: none !important;
+                /* Xóa sổ cái ảnh 1x1 cũ */
 
-                /* Dùng màu rgba Bán Trong Suốt (White 15%). 
-           Thuật toán ép Dark Mode thường "mù" hoặc bỏ qua 
-           việc đảo màu các phần tử có alpha channel thấp */
-                background: rgba(255, 255, 255, 0.15) !important;
+                /* Kế 'Rút củi đáy nồi': KHÔNG DÙNG MÀU NỮA! 
+           Đưa nền về trong suốt. Thuật toán lấy gì ra để mà đảo ngược? */
+                background: transparent !important;
+                box-shadow: none !important;
 
-                /* Tạo hiệu ứng sáng nhẹ nhàng bằng bóng đổ viền */
-                box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1),
-                    0 0 20px rgba(235, 242, 246, 0.1) !important;
+                /* Dùng thấu kính hội tụ (Backdrop Filter): 
+           Hút ánh sáng từ nền Xanh Than (#142534) ở phía sau và kích sáng nó lên 4 lần. 
+           Trình duyệt không thể bóc tách layer này ra để đảo màu vì nó là phép tính quang học real-time! 
+           Kết quả: Cánh hoa của cậu sẽ biến thành màu Xanh Pastel/Trắng mờ cực kỳ Luxury. */
+                backdrop-filter: brightness(4) saturate(0.5) blur(2px) !important;
+                -webkit-backdrop-filter: brightness(4) saturate(0.5) blur(2px) !important;
 
-                /* Thêm kính mờ (nếu muốn cánh hoa nhìn luxury hơn) */
-                backdrop-filter: blur(4px);
+                /* Kẻ một đường viền sương mai để cánh hoa sắc nét hơn */
+                border: 1px solid rgba(255, 255, 255, 0.25) !important;
             }
 
+            /* 3. BẢO VỆ CHỮ KÝ TÁC GIẢ */
             #intro-text {
-                color: rgba(255, 255, 255, 0.95) !important;
+                color: #FFFFFF !important;
+                -webkit-text-fill-color: #FFFFFF !important;
                 text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
             }
 
+            /* 4. VỤ NỔ BIG BANG TÀNG HÌNH */
             .light-burst {
-                background: rgba(255, 255, 255, 0.1) !important;
-                box-shadow: 0 0 100px 50px rgba(255, 255, 255, 0.1) !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                /* Khi quả cầu này vỡ ra, nó sẽ kích sáng 10 lần mọi thứ phía sau nó, 
+           bao phủ màn hình bằng ánh sáng trắng lóa mà Force Dark phải đứng nhìn trong bất lực */
+                backdrop-filter: brightness(10) !important;
+                -webkit-backdrop-filter: brightness(10) !important;
             }
         }
     </style>
