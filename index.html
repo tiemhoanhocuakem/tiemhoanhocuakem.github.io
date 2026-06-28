@@ -925,37 +925,43 @@
 
         /* ==========================================
         BẢO VỆ UI: ÉP GIAO DIỆN DARK MODE TRÊN MOBILE CHO INTRO 
-        (PHIÊN BẢN VƯỢT TƯỜNG LỬA HỆ ĐIỀU HÀNH BẰNG SVG)
+        (PHIÊN BẢN HACK BẰNG ẢNH PNG RASTER DÀNH RIÊNG CHO XIAOMI/SAMSUNG)
         ========================================== */
         @media (prefers-color-scheme: dark) and (max-width: 767px) {
 
-            /* 1. NGUỴ TRANG NỀN: Ép background thành trong suốt, dùng background-image chứa mã SVG 
-       để hệ điều hành tưởng đây là một bức ảnh và bỏ qua việc làm tối */
+            /* 1. BACKGROUND: Ép thẳng một màu tối (#142534)
+            Khi thuật toán thấy nền đã đủ tối, nó sẽ lười biếng và không nhúng tay vào nữa */
             #luxury-intro {
-                background-color: transparent !important;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3CradialGradient id='bg' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%232c4a63'/%3E%3Cstop offset='100%25' stop-color='%23142534'/%3E%3C/radialGradient%3E%3Crect width='100%25' height='100%25' fill='url(%23bg)'/%3E%3C/svg%3E") !important;
-                background-size: cover !important;
+                background: #142534 !important;
             }
 
-            /* 2. NGUỴ TRANG CÁNH HOA: Tương tự, biến khối màu linear-gradient thành file SVG */
+            /* 2. CÁNH HOA BẤT TỬ: 
+            Sử dụng một pixel ảnh PNG màu trắng (đã mã hóa Base64) làm nền. 
+            Trình duyệt tuyệt đối không bao giờ đảo màu file PNG. */
             .petal-intro {
                 background-color: transparent !important;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23e6e6e6'/%3E%3C/linearGradient%3E%3Crect width='100%25' height='100%25' fill='url(%23p)'/%3E%3C/svg%3E") !important;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
+                background-size: cover !important;
+                opacity: 0.8;
+                /* Tạo độ mờ ảo tự nhiên thay cho gradient */
                 box-shadow: 0 0 25px rgba(255, 255, 255, 0.4) !important;
             }
 
-            /* 3. BẢO VỆ TEXT: Hệ điều hành hay làm mờ chữ trắng (dimming), 
-       ta dùng -webkit-text-fill-color để khóa chết màu trắng sáng */
+            /* 3. VĂN BẢN TRONG SÁNG: 
+            Biến chữ thành trong suốt, sau đó lấy đúng cái ảnh PNG màu trắng ở trên "cắt" theo viền chữ (background-clip). 
+            Chữ của bạn giờ đây được tạc ra từ một bức ảnh trắng! */
             #intro-text {
                 color: transparent !important;
-                -webkit-text-fill-color: #FFFFFF !important;
-                text-shadow: 0 4px 20px rgba(255, 255, 255, 0.8) !important;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
+                -webkit-background-clip: text !important;
+                background-clip: text !important;
+                text-shadow: 0 4px 20px rgba(255, 255, 255, 0.5) !important;
             }
 
-            /* 4. CÚ NỔ ÁNH SÁNG: Phải khớp màu với thân trang web đã bị Dark Mode (#142534) */
+            /* 4. CÚ NỔ CHUYỂN CẢNH: Phải giữ màu tối để khớp với nền trang web bên dưới */
             .light-burst {
-                background-color: transparent !important;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='%23142534'/%3E%3C/svg%3E") !important;
+                background-color: #142534 !important;
+                background-image: none !important;
                 box-shadow: 0 0 100px 50px #142534 !important;
             }
         }
