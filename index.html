@@ -924,51 +924,49 @@
         }
 
         /* ==========================================
-BẢO VỆ UI: ÉP GIAO DIỆN DARK MODE TRÊN MOBILE CHO INTRO 
-(VŨ KHÍ TỐI THƯỢNG: ĐIỂM MÙ MÀU XÁM + GPU FILTER)
+   BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - IMAGE REPLACEMENT)
 ========================================== */
-        @media (prefers-color-scheme: dark) and (max-width: 767px) {
+@media (prefers-color-scheme: dark) and (max-width: 767px) {
+    
+    /* 1. NEO CHẶT MÀU NỀN TỐI (KHÔNG DÙNG TRANSPARENT NỮA) 
+       Ta phải khai báo thẳng nền màu Xanh Than. 
+       Trình duyệt thấy nền đã tối sẵn, nó sẽ không cố làm đen các phần tử bên trên nữa. */
+    #luxury-intro {
+        background: #142534 !important;
+        isolation: isolate;
+    }
 
-            /* 1. NỀN AN TOÀN: #142534 là màu đủ tối. Thuật toán của Samsung/Xiaomi 
-       chỉ đảo màu Sáng thành Tối, không bao giờ đảo màu Tối thành Sáng. 
-       Nên màu nền này sẽ được an toàn 100%. */
-            #luxury-intro {
-                background: #142534 !important;
-            }
+    /* 2. THUẬT BIẾN HÌNH CÁNH HOA THÀNH ẢNH
+       Xóa toàn bộ màu nền/gradient cũ. Thay vào đó, chèn trực tiếp 1 pixel ảnh TRẮNG TINH (Base64).
+       Thuộc tính 'content' biến div thành ảnh, 'object-fit' kéo giãn ảnh ra 45px.
+       Trình duyệt KHÔNG BAO GIỜ dám đảo màu ảnh! */
+    .petal-intro {
+        background: none !important;
+        box-shadow: none !important; 
+        
+        /* Ma thuật nằm ở 2 dòng này: */
+        content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=') !important;
+        object-fit: cover !important;
+        
+        opacity: 0.9 !important; /* Vẫn giữ được độ mờ nhẹ nhàng */
+    }
 
-            /* 2. CÁNH HOA BẤT TỬ (HACK): 
-       Gán màu xám #808080 để thuật toán không đảo ngược được. 
-       Sau đó dùng GPU (filter) kích sáng 1000% thành màu trắng rực rỡ. */
-            .petal-intro {
-                background: #808080 !important;
-                background-image: none !important;
-                box-shadow: none !important;
-                /* Xóa bóng mờ cũ gây lỗi */
+    /* 3. VĂN BẢN TỎA SÁNG
+       Khi nền #luxury-intro đã là màu tối (#142534), ta cứ hiên ngang set màu trắng.
+       Trình duyệt tự hiểu tương phản đã chuẩn, nó sẽ để yên. */
+    #intro-text {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        text-shadow: 0 4px 20px rgba(255, 255, 255, 0.4) !important;
+        filter: none !important; /* Gỡ bỏ mọi lớp kính râm của trình duyệt */
+    }
 
-                /* Ma thuật nằm ở đây: */
-                filter: brightness(1000%) grayscale(100%) drop-shadow(0 0 2px rgba(128, 128, 128, 0.4)) !important;
-                -webkit-filter: brightness(1000%) grayscale(100%) drop-shadow(0 0 2px rgba(128, 128, 128, 0.4)) !important;
-            }
-
-            /* 3. CHỮ XIN CHÀO: Áp dụng cùng nguyên lý "Trắng hóa từ Xám" */
-            #intro-text {
-                color: #808080 !important;
-                text-shadow: none !important;
-                -webkit-text-fill-color: initial !important;
-                /* Phá vỡ các hack cũ */
-
-                /* Kích chữ lên trắng tinh cùng với bóng mờ */
-                filter: brightness(1000%) grayscale(100%) drop-shadow(0 2px 4px rgba(128, 128, 128, 0.5)) !important;
-                -webkit-filter: brightness(1000%) grayscale(100%) drop-shadow(0 2px 4px rgba(128, 128, 128, 0.5)) !important;
-            }
-
-            /* 4. CÚ NỔ ÁNH SÁNG: Khớp hoàn toàn với màu nền tối #142534 */
-            .light-burst {
-                background: #142534 !important;
-                background-image: none !important;
-                box-shadow: 0 0 100px 50px #142534 !important;
-            }
-        }
+    /* 4. CỤC SÁNG CHUYỂN CẢNH (Khớp với màu nền) */
+    .light-burst {
+        background: #142534 !important;
+        box-shadow: 0 0 100px 50px #142534 !important;
+    }
+}
     </style>
 </head>
 
