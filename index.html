@@ -924,55 +924,55 @@
         }
 
         /* ==========================================
-   BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - NUCLEAR OPTION)
-   ========================================== */
+        BẢO VỆ UI: ÉP DARK MODE (CẢNH GIỚI TỐI CAO - GRAY BAIT & GPU OVERDRIVE)
+        ========================================== */
         @media (prefers-color-scheme: dark) and (max-width: 767px) {
 
-            /* 1. KHIẾN THUẬT TOÁN ĐẦU HÀNG TỪ VÒNG GỬI XE */
             #luxury-intro {
+                /* Giữ nền tối đúng ý đồ của cậu để che mắt thuật toán */
                 background: #142534 !important;
-                /* Bùa chú W3C: Tuyên bố thẳng "Layer này ĐÃ ĐƯỢC DEV THIẾT KẾ CHO DARK MODE". 
-           Thuật toán sẽ tự động bỏ qua, không dám lôi code ra đảo ngược nữa! */
-                color-scheme: dark !important;
                 isolation: isolate;
             }
 
-            /* 2. NGHỆ THUẬT TÀNG HÌNH QUANG HỌC */
             .petal-intro {
+                /* Hủy bỏ mọi content/ảnh cũ */
                 content: none !important;
-                /* Xóa sổ cái ảnh 1x1 cũ */
 
-                /* Kế 'Rút củi đáy nồi': KHÔNG DÙNG MÀU NỮA! 
-           Đưa nền về trong suốt. Thuật toán lấy gì ra để mà đảo ngược? */
-                background: transparent !important;
-                box-shadow: none !important;
+                /* 1. MỒI NHỬ TRUNG TÍNH (NEUTRAL BAIT HACK)
+           Thuật toán Force Dark hoạt động bằng cách đảo ngược mã HEX (Invert).
+           Trắng (#FFFFFF) sẽ bị đảo thành Đen (#000000).
+           NHƯNG! Màu Xám Trung Tính (#808080), khi bị đảo ngược, nó sẽ trở thành #7F7F7F.
+           Tức là: XÁM ĐẢO NGƯỢC VẪN LÀ XÁM! 
+           Đến đây, cỗ máy ép màu của trình duyệt chính thức bị vô hiệu hóa về mặt toán học. */
+                background: #808080 !important;
 
-                /* Dùng thấu kính hội tụ (Backdrop Filter): 
-           Hút ánh sáng từ nền Xanh Than (#142534) ở phía sau và kích sáng nó lên 4 lần. 
-           Trình duyệt không thể bóc tách layer này ra để đảo màu vì nó là phép tính quang học real-time! 
-           Kết quả: Cánh hoa của cậu sẽ biến thành màu Xanh Pastel/Trắng mờ cực kỳ Luxury. */
-                backdrop-filter: brightness(4) saturate(0.5) blur(2px) !important;
-                -webkit-backdrop-filter: brightness(4) saturate(0.5) blur(2px) !important;
+                /* Cấp cho nó một cái bóng xám mờ để tạo hiệu ứng phát sáng ở bước 2 */
+                box-shadow: 0 0 4px #808080 !important;
 
-                /* Kẻ một đường viền sương mai để cánh hoa sắc nét hơn */
-                border: 1px solid rgba(255, 255, 255, 0.25) !important;
+                /* 2. ĐÒN BẨY GPU (GPU OVERDRIVE)
+           Bây giờ trên màn hình đang là một cánh hoa màu xám. Thuật toán đã quét xong và đi chỗ khác.
+           Lúc này, ta dùng 'filter' (xử lý hậu kỳ trực tiếp bằng Card đồ họa GPU):
+           Bơm độ sáng của màu Xám lên gấp 10 lần (brightness: 10).
+           Kết quả: Xám x 10 = TRẮNG LÓA TINH KHIẾT. 
+           Trình duyệt không bao giờ dám can thiệp vào thuộc tính filter vì sợ vỡ layout ảnh! */
+                filter: brightness(10) !important;
+                -webkit-filter: brightness(10) !important;
             }
 
-            /* 3. BẢO VỆ CHỮ KÝ TÁC GIẢ */
+            /* Áp dụng hệt đòn bẩy Toán học này cho cục sáng bùng nổ */
+            .light-burst {
+                background: #808080 !important;
+                box-shadow: 0 0 10px #808080 !important;
+                filter: brightness(10) !important;
+                -webkit-filter: brightness(10) !important;
+            }
+
+            /* Phần Text thường được tha khi nó nhận diện được nền cha đã tối, 
+       chỉ cần ghim cứng màu Trắng là đủ an toàn */
             #intro-text {
                 color: #FFFFFF !important;
                 -webkit-text-fill-color: #FFFFFF !important;
                 text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8) !important;
-            }
-
-            /* 4. VỤ NỔ BIG BANG TÀNG HÌNH */
-            .light-burst {
-                background: transparent !important;
-                box-shadow: none !important;
-                /* Khi quả cầu này vỡ ra, nó sẽ kích sáng 10 lần mọi thứ phía sau nó, 
-           bao phủ màn hình bằng ánh sáng trắng lóa mà Force Dark phải đứng nhìn trong bất lực */
-                backdrop-filter: brightness(10) !important;
-                -webkit-backdrop-filter: brightness(10) !important;
             }
         }
     </style>
