@@ -635,40 +635,68 @@ window.refreshAllData = async function () {
 
 window.cancelOrderCustomer = async function (orderId) {
     showConfirmModal('Hủy đơn hàng', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
+
+        // [KIẾN TRÚC MỚI] 1. Tiền kiểm tra mạng (Pre-flight Network Check)
+        if (!navigator.onLine) {
+            luxuryToast("Không có kết nối Internet. Vui lòng kiểm tra lại mạng!", true);
+            setBtnLoading('btn-confirm-action', false);
+            return;
+        }
+
+        // [KIẾN TRÚC MỚI] 2. Biến đổi cục bộ (Local Mutation) - Khóa UI ngay lập tức trong 1 mili-giây
+        closeConfirmModal();
+        setBtnLoading('btn-confirm-action', false);
+
+        if (LOGGED_USER && LOGGED_USER.ordersCache) {
+            const targetOrder = LOGGED_USER.ordersCache.find(o => o.orderId === orderId);
+            if (targetOrder) {
+                targetOrder.status = 'ĐANG XỬ LÝ...'; // Trạng thái ảo để tước quyền bấm nút
+                renderUserOrdersList(LOGGED_USER.ordersCache); // Vẽ lại UI lập tức, nút Hủy bốc hơi
+            }
+        }
+
+        // 3. Tiến hành giao tiếp với Máy chủ (Zero-Trust API)
         try {
-            // Lấy Token từ Session Storage
             const currentToken = localStorage.getItem('kem_token');
             if (!currentToken) {
-                luxuryToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!", true);
-                closeConfirmModal();
+                luxuryToast("Phiên đăng nhập đã hết hạn. Vui lòng tải lại trang!", true);
                 return;
             }
 
-            // Gửi API kèm Payload chứa Token bảo mật
             const payloadData = {
                 action: 'cancelOrderCustomer',
-                payload: {
-                    orderId: orderId,
-                    token: currentToken // THÊM CHÌA KHÓA VÀO ĐÂY
-                }
+                payload: { orderId: orderId, token: currentToken }
             };
 
-            const res = await fetch(GOOGLE_API_URL, {
-                method: 'POST',
-                body: JSON.stringify(payloadData)
-            }).then(r => r.json());
+            const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payloadData) }).then(r => r.json());
 
             if (res.status === 'success') {
                 luxuryToast("Đã hủy đơn hàng thành công.");
-                refreshAllData(); // Load lại UI
+                // Chốt trạng thái thật và hiển thị ĐƠN HỦY
+                if (LOGGED_USER && LOGGED_USER.ordersCache) {
+                    const targetOrder = LOGGED_USER.ordersCache.find(o => o.orderId === orderId);
+                    if (targetOrder) {
+                        targetOrder.status = 'ĐƠN HỦY';
+                        renderUserOrdersList(LOGGED_USER.ordersCache);
+                    }
+                }
+                // Âm thầm đồng bộ các data phụ (như lấy lại Voucher) ở Background
+                refreshAllData();
             } else {
-                luxuryToast(res.message, true); // Hiển thị lỗi từ Backend (ví dụ: cấm hủy hộ người khác)
+                luxuryToast(res.message, true);
+                // Rollback (Khôi phục) nếu Server từ chối lệnh hủy (VD: Admin vừa chốt đơn xong)
+                if (LOGGED_USER && LOGGED_USER.ordersCache) {
+                    const targetOrder = LOGGED_USER.ordersCache.find(o => o.orderId === orderId);
+                    if (targetOrder) {
+                        targetOrder.status = 'CHƯA XÁC NHẬN';
+                        renderUserOrdersList(LOGGED_USER.ordersCache);
+                    }
+                }
             }
         } catch (e) {
-            luxuryToast("Lỗi kết nối đến máy chủ", true);
+            // [BẢN VÁ UX] Trấn an tâm lý khách hàng khi đứt mạng lúc hủy đơn
+            luxuryToast("Mất kết nối mạng tạm thời! Yêu cầu hủy đang chờ. Hệ thống sẽ tự động cập nhật ngay khi bạn có mạng lại.", true);
         }
-        closeConfirmModal();
-        setBtnLoading('btn-confirm-action', false);
     });
 }
 
@@ -942,15 +970,35 @@ window.submitOrder = async function (e) {
     e.preventDefault();
     if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập trước khi thanh toán!", true);
 
+    // [BẢN VÁ BẢO MẬT ZERO-TRUST] 1. Pre-flight Network Check
+    if (!navigator.onLine) {
+        return luxuryToast("Không có kết nối Internet. Vui lòng kiểm tra lại mạng!", true);
+    }
+
     const itemsToBuy = cart.filter(item => item.selected === true);
+    // [KIẾN TRÚC MỚI] Trích xuất sẵn những món không mua để gửi lên Server dọn dẹp
+    const itemsToKeep = cart.filter(item => item.selected === false);
+
     if (itemsToBuy.length === 0) return luxuryToast("Chưa có sản phẩm nào được chọn!", true);
 
     setBtnLoading('btn-submit-order', true, 'ĐANG XÁC NHẬN ĐƠN...');
-    const orderData = { action: 'createOrder', payload: { token: localStorage.getItem('kem_token'), customerName: document.getElementById('form-name').value, phone: document.getElementById('form-phone').value, address: document.getElementById('form-address').value, note: document.getElementById('form-note').value, voucher: appliedVoucherCode || "KHÔNG DÙNG", cart: itemsToBuy } };
+
+    const orderData = {
+        action: 'createOrder',
+        payload: {
+            token: localStorage.getItem('kem_token'),
+            customerName: document.getElementById('form-name').value,
+            phone: document.getElementById('form-phone').value,
+            address: document.getElementById('form-address').value,
+            note: document.getElementById('form-note').value,
+            voucher: appliedVoucherCode || "KHÔNG DÙNG",
+            cart: itemsToBuy,
+            remainingCart: itemsToKeep // [KIẾN TRÚC MỚI] Nhồi giỏ hàng mới vào chung một gói tin
+        }
+    };
     try {
         const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json());
         if (res.status === 'success') {
-            // 1. Giữ lại các món chưa mua, dọn dẹp giao diện
             cart = cart.filter(item => item.selected === false);
             saveCartState();
             document.getElementById('cart-badge').innerText = cart.reduce((s, i) => s + i.qty, 0);
@@ -965,54 +1013,34 @@ window.submitOrder = async function (e) {
             document.getElementById('form-address').value = LOGGED_USER.address || '';
             luxuryToast("🎉 Gửi đơn hàng thành công!");
 
-            // TẠM BIỆT DÒNG NÀY: setTimeout(() => loginUser(), 1500);
-
-            // 2. CẬP NHẬT GIAO DIỆN LỊCH SỬ ĐƠN HÀNG "SLYTH" (ÂM THẦM)
             const dashboardList = document.getElementById('dashboard-orders-list');
+            if (dashboardList.innerHTML.includes("Bạn chưa có sản phẩm nào")) dashboardList.innerHTML = '';
 
-            // Nếu danh sách đang trống, xóa chữ "Bạn chưa có sản phẩm nào"
-            if (dashboardList.innerHTML.includes("Bạn chưa có sản phẩm nào")) {
-                dashboardList.innerHTML = '';
-            }
-
-            // Render danh sách sản phẩm vừa mua
             let itemsHtml = '<ul class="space-y-3 mb-4 border-t border-primary/10 pt-4">';
             orderData.payload.cart.forEach(i => {
-                itemsHtml += `<li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5">
-            <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${i.name}</span>
-            <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span>
-        </li>`;
+                itemsHtml += `<li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5"> <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${i.name}</span> <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span> </li>`;
             });
             itemsHtml += '</ul>';
 
-            // Render thông tin Voucher (Nếu có)
-            const voucherHtml = (orderData.payload.voucher && orderData.payload.voucher !== 'KHÔNG DÙNG')
-                ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${orderData.payload.voucher}</p>` : '';
+            const voucherHtml = (orderData.payload.voucher && orderData.payload.voucher !== 'KHÔNG DÙNG') ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${orderData.payload.voucher}</p>` : '';
 
-            // Lắp ráp thẻ (Card) Đơn hàng mới
-            const newOrderCard = `
-    <div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300">
-        <div class="flex justify-between items-center font-bold text-primary mb-1">
-            <span class="tracking-widest text-[11px]">${res.orderId}</span>
-            <span class="text-[10px] uppercase tracking-widest text-blue-600 bg-slate-50 px-2 py-1 rounded">CHƯA XÁC NHẬN</span>
-        </div>
-        <p class="text-[10px] text-secondary font-medium mb-2">Vừa xong</p>
-        ${itemsHtml}
-        <div class="flex flex-col border-t border-primary/5 pt-3 mt-1">
-            <div class="flex justify-between items-end">
-                <span class="font-serif font-bold text-primary text-xl">${formatVND(res.finalTotal)}</span>
-                <button onclick="cancelOrderCustomer('${res.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>
-            </div>
-            ${voucherHtml}
-        </div>
-    </div>`;
+            const newOrderCard = ` <div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300"> <div class="flex justify-between items-center font-bold text-primary mb-1"> <span class="tracking-widest text-[11px]">${res.orderId}</span> <span class="text-[10px] uppercase tracking-widest text-blue-600 bg-slate-50 px-2 py-1 rounded">CHƯA XÁC NHẬN</span> </div> <p class="text-[10px] text-secondary font-medium mb-2">Vừa xong</p> ${itemsHtml} <div class="flex flex-col border-t border-primary/5 pt-3 mt-1"> <div class="flex justify-between items-end"> <span class="font-serif font-bold text-primary text-xl">${formatVND(res.finalTotal)}</span> <button onclick="cancelOrderCustomer('${res.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button> </div> ${voucherHtml} </div> </div>`;
 
-            // Chèn đơn hàng mới lên trên cùng của danh sách
             dashboardList.insertAdjacentHTML('afterbegin', newOrderCard);
             refreshAllData();
-        } else { luxuryToast(res.message, true); }
-    } catch (error) { luxuryToast("Lỗi kết nối CSDL", true); }
-    setBtnLoading('btn-submit-order', false);
+
+            // [BẢN VÁ] Chỉ mở khóa nút khi mọi thứ đã thành công 100%
+            setBtnLoading('btn-submit-order', false);
+        } else {
+            luxuryToast(res.message, true);
+            // [BẢN VÁ] Mở khóa nút nếu lỗi đến từ logic nghiệp vụ (VD: Sai voucher, đổi ý)
+            setBtnLoading('btn-submit-order', false);
+        }
+    } catch (error) {
+        // [BẢN VÁ UX] Trấn an tâm lý khách hàng khi đứt mạng lúc chốt đơn
+        luxuryToast("Mất kết nối mạng tạm thời! Đơn hàng đang được bảo lưu. Hệ thống sẽ tự động hoàn tất ngay khi có mạng lại.", true);
+        switchView('cart-view');
+    }
 }
 
 window.openContact = function () { const m = document.getElementById('contact-modal'); m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('contact-modal-content').classList.remove('scale-95', 'opacity-0'); }, 10); }
@@ -1057,6 +1085,19 @@ window.closeLightbox = function () {
 document.addEventListener("DOMContentLoaded", () => {
     fetchStoreData();
     autoResumeSession(); // [BẢN VÁ AUTO-RESUME] Kích hoạt chạy ngầm
+
+    // ==========================================
+    // [KIẾN TRÚC MỚI] EVENT-DRIVEN RECOVERY (PHỤC HỒI TỨC THÌ KHI CÓ MẠNG)
+    // ==========================================
+    window.addEventListener('online', () => {
+        if (LOGGED_USER) {
+            // Hiển thị thông báo trấn an lập tức
+            luxuryToast("🌐 Đã kết nối lại mạng! Đang đồng bộ dữ liệu...");
+            // Bỏ qua vòng lặp 60s, ép hệ thống gọi API đồng bộ ngay lập tức
+            if (typeof refreshAllData === 'function') refreshAllData();
+        }
+    });
+    // ==========================================
 
     const badge = document.getElementById('cart-badge');
     if (badge) {
