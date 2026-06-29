@@ -1,4 +1,4 @@
-const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbweTa1Nu5Zx0QFskNE4I-VVow5ED9QKhn2mtHSUemMb96yplYnwKPBhtXaQZu8kl9nUiw/exec';
+const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbyc0XJ5nVQkDKxl61hE3pygnyEVSp_8Ro5z-ZNE7SATFfxIw5L-3mxBKe_fPUjBZIcy/exec';
 
 let ALL_PRODUCTS = []; let ALL_VOUCHERS = [];
 // --- KHỞI TẠO GIỎ HÀNG VỚI CƠ CHẾ TỰ HỦY (15 PHÚT) ---
