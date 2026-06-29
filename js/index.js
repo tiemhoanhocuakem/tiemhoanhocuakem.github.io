@@ -58,6 +58,65 @@ let LOGGED_USER = null;
 let USED_VOUCHERS = [];
 let tempResetPhone = "";
 
+// ==========================================
+// CUSTOMER BACKGROUND SYNC (ĐỒNG BỘ NGẦM)
+// ==========================================
+let customerSyncInterval;
+
+function startCustomerSync() {
+    if (customerSyncInterval) clearInterval(customerSyncInterval);
+
+    // Quét 20 giây/lần để bảo vệ Server Google
+    customerSyncInterval = setInterval(async () => {
+        // Chỉ chạy khi đã đăng nhập và đang mở tab (Tiết kiệm tài nguyên)
+        if (!LOGGED_USER || !sessionStorage.getItem('kem_token') || document.hidden) return;
+
+        try {
+            const res = await fetch(GOOGLE_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'refreshUserData',
+                    payload: { token: sessionStorage.getItem('kem_token') }
+                })
+            }).then(r => r.json());
+
+            if (res.status === 'success') {
+                const newOrders = res.orders || [];
+                const oldOrders = LOGGED_USER.ordersCache || []; // Lấy bộ nhớ đệm
+                let statusChanged = false;
+
+                // THUẬT TOÁN DIFFING: Truy vết Admin đổi trạng thái
+                if (oldOrders.length > 0) {
+                    newOrders.forEach(newOrder => {
+                        const oldOrder = oldOrders.find(o => o.orderId === newOrder.orderId);
+                        if (oldOrder && oldOrder.status !== newOrder.status) {
+                            statusChanged = true;
+                            // Đánh vào cảm xúc khách hàng bằng Toast Luxury
+                            if (newOrder.status === 'ĐÃ XÁC NHẬN') {
+                                luxuryToast(`🎉 Tin vui: Đơn hàng [${newOrder.orderId}] đã được tiệm xác nhận!`);
+                            } else if (newOrder.status === 'ĐƠN HỦY') {
+                                luxuryToast(`⚠️ Đơn hàng [${newOrder.orderId}] đã bị hủy.`, true);
+                            }
+                        }
+                    });
+                }
+
+                // Cập nhật lại bộ nhớ đệm
+                LOGGED_USER.ordersCache = newOrders;
+                USED_VOUCHERS = res.usedVouchers || [];
+
+                // UX: Chỉ render lại UI nếu đang mở tab Lịch sử đơn hàng VÀ có thay đổi
+                const dashboardView = document.getElementById('auth-dashboard-view');
+                if (statusChanged && dashboardView && dashboardView.classList.contains('active')) {
+                    renderUserOrdersList(newOrders);
+                }
+            }
+        } catch (e) {
+            // Im lặng bỏ qua lỗi mạng tạm thời để không làm phiền khách
+        }
+    }, 60000);
+}
+
 // LUXURY NOTIFICATION SYSTEM (Hệ thống thông báo hàng hiệu)
 function luxuryToast(msg, isError = false) {
     const container = document.getElementById('luxury-toast-container');
@@ -394,9 +453,18 @@ window.loginUser = async function () {
             // ---------------------------------
 
             luxuryToast(`Đăng nhập thành công. Chào bạn ${LOGGED_USER.name.split(' ').pop()}!`);
-            document.getElementById('nav-user-name').innerText = LOGGED_USER.name.split(' ').pop(); document.getElementById('form-name').value = LOGGED_USER.name; document.getElementById('form-phone').value = LOGGED_USER.phone; document.getElementById('form-address').value = LOGGED_USER.address || ''; document.getElementById('dash-welcome-title').innerText = LOGGED_USER.name + '.';
-            renderUserOrdersList(res.orders || []); switchAuthView('dashboard');
-            USED_VOUCHERS = res.usedVouchers || []; initStorefront(); autoApplyBestVoucher();
+            document.getElementById('nav-user-name').innerText = LOGGED_USER.name.split(' ').pop(); document.getElementById('form-name').value = LOGGED_USER.name; document.getElementById('form-phone').value = LOGGED_USER.phone; document.getElementById('form-address').value = LOGGED_USER.address || '';
+            document.getElementById('dash-welcome-title').innerText = LOGGED_USER.name + '.';
+
+            renderUserOrdersList(res.orders || []);
+
+            // [BẢN VÁ ZERO-TRUST] Kích hoạt cỗ máy đồng bộ trạng thái đơn hàng
+            LOGGED_USER.ordersCache = res.orders || [];
+            if (typeof startCustomerSync === 'function') startCustomerSync();
+
+            switchAuthView('dashboard');
+            USED_VOUCHERS = res.usedVouchers || [];
+            initStorefront(); autoApplyBestVoucher();
         } else { luxuryToast(res.message, true); }
     } catch (e) { luxuryToast("Lỗi kết nối máy chủ dữ liệu", true); }
     setBtnLoading('btn-login-trigger', false);
@@ -558,6 +626,9 @@ window.togglePassword = function (inputId, btn) {
 }
 
 window.logoutUser = function () {
+    // [BẢN VÁ ZERO-TRUST] Tiêu diệt cỗ máy đồng bộ ngầm, giải phóng RAM
+    if (typeof customerSyncInterval !== 'undefined') clearInterval(customerSyncInterval);
+
     // 1. Xóa trạng thái định danh người dùng (Giao diện)
     LOGGED_USER = null;
     document.getElementById('nav-user-name').innerText = "Tài khoản";
@@ -1010,20 +1081,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // [INFINITY EDGE UX] Thay đổi màu thanh trình duyệt (Status Bar) theo thời gian thực khi cuộn
     window.addEventListener('scroll', () => {
-      const h = document.getElementById('main-header');
-      const themeMeta = document.getElementById('meta-theme-color');
-      
-      if (window.scrollY > 50) {
-        h.classList.add('scrolled');
-        h.classList.remove('hero-mode');
-        // Khi cuộn xuống: Thanh trình duyệt tiệp màu với nền Web (#EBF2F6)
-        if (themeMeta.getAttribute('content') !== '#EBF2F6') themeMeta.setAttribute('content', '#EBF2F6');
-      } else {
-        h.classList.remove('scrolled');
-        h.classList.add('hero-mode');
-        // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#142534)
-        if (themeMeta.getAttribute('content') !== '#142534') themeMeta.setAttribute('content', '#142534');
-      }
+        const h = document.getElementById('main-header');
+        const themeMeta = document.getElementById('meta-theme-color');
+
+        if (window.scrollY > 50) {
+            h.classList.add('scrolled');
+            h.classList.remove('hero-mode');
+            // Khi cuộn xuống: Thanh trình duyệt tiệp màu với nền Web (#EBF2F6)
+            if (themeMeta.getAttribute('content') !== '#EBF2F6') themeMeta.setAttribute('content', '#EBF2F6');
+        } else {
+            h.classList.remove('scrolled');
+            h.classList.add('hero-mode');
+            // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#142534)
+            if (themeMeta.getAttribute('content') !== '#142534') themeMeta.setAttribute('content', '#142534');
+        }
     });
 
     const slides = document.querySelectorAll('.slide');
