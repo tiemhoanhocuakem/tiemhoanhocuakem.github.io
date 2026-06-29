@@ -150,7 +150,8 @@ async function fetchStoreData(isSilent = false) {
                 ...v,
                 value: Number(v.value),
                 usedCount: Number(v.usedCount),
-                maxUsage: Number(v.maxUsage)
+                maxUsage: Number(v.maxUsage),
+                minOrderValue: Number(v.minOrderValue) || 0
             }));
 
             if (ALL_PRODUCTS.length === 0) {
@@ -277,19 +278,36 @@ window.confirmPasswordReset = async function () {
 }
 
 window.initiateOTPFlow = async function () {
-    const email = document.getElementById('user-email').value; const name = document.getElementById('user-name').value; const phone = document.getElementById('user-phone').value;
-    const uid = document.getElementById('user-uid').value; // Kiểm tra xem là Đăng ký mới hay Cập nhật profile
+    const email = document.getElementById('user-email').value.trim();
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+    const address = document.getElementById('user-address').value.trim();
+    const uid = document.getElementById('user-uid').value;
 
     if (!email || !name || !phone) return luxuryToast("Vui lòng điền đủ Họ tên, SĐT và Email!", true);
+
+    // [UX & PERFORMANCE UPGRADE] Tránh lãng phí OTP nếu khách không thay đổi thông tin
+    if (uid && LOGGED_USER) {
+        const pass = document.getElementById('user-pass').value; // Kiểm tra xem khách có gõ mật khẩu mới không
+        const currentAddress = LOGGED_USER.address || '';
+
+        if (name === LOGGED_USER.name && phone === LOGGED_USER.phone && email === LOGGED_USER.email && address === currentAddress && !pass) {
+            luxuryToast("Thông tin không có thay đổi nào.");
+            switchAuthView('dashboard'); // Thoát ra Dashboard thanh lịch, giữ nguyên thông tin
+            return;
+        }
+    }
+
     setBtnLoading('btn-save-account', true, 'ĐANG KIỂM TRA...');
 
-    // Xây dựng payload bảo mật: Chỉ kích hoạt quét trùng khi người dùng Đăng ký mới (uid rỗng)
+    // Truyền thêm uid vào payload để Backend biết đường loại trừ chính khách hàng này khi quét trùng lặp
     const payload = {
         action: 'sendOTP',
         payload: {
             email: email,
             phone: phone,
-            type: uid ? 'update' : 'register'
+            type: uid ? 'update' : 'register',
+            uid: uid
         }
     };
 
@@ -713,7 +731,9 @@ window.autoApplyBestVoucher = function () {
             }
         });
 
-        if (eligibleAmount > 0) {
+        // [CẬP NHẬT LOGIC] Kiểm tra chốt chặn Đơn hàng tối thiểu (MOV)
+        const minRequired = Number(v.minOrderValue) || 0;
+        if (eligibleAmount > 0 && eligibleAmount >= minRequired) {
             // Thực hiện tính toán mức giảm dựa trên định dạng PERCENT hoặc FIXED
             let calcDiscount = v.type === 'PERCENT' ? eligibleAmount * (Number(v.value) / 100) : Number(v.value);
             calcDiscount = Math.min(calcDiscount, eligibleAmount);
@@ -988,7 +1008,23 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => document.getElementById("light-burst").classList.add("expand"), 3000);
     setTimeout(() => intro.style.opacity = 0, 3700);
 
-    window.addEventListener('scroll', () => { const h = document.getElementById('main-header'); window.scrollY > 50 ? (h.classList.add('scrolled'), h.classList.remove('hero-mode')) : (h.classList.remove('scrolled'), h.classList.add('hero-mode')); });
+    // [INFINITY EDGE UX] Thay đổi màu thanh trình duyệt (Status Bar) theo thời gian thực khi cuộn
+    window.addEventListener('scroll', () => {
+      const h = document.getElementById('main-header');
+      const themeMeta = document.getElementById('meta-theme-color');
+      
+      if (window.scrollY > 50) {
+        h.classList.add('scrolled');
+        h.classList.remove('hero-mode');
+        // Khi cuộn xuống: Thanh trình duyệt tiệp màu với nền Web (#EBF2F6)
+        if (themeMeta.getAttribute('content') !== '#EBF2F6') themeMeta.setAttribute('content', '#EBF2F6');
+      } else {
+        h.classList.remove('scrolled');
+        h.classList.add('hero-mode');
+        // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#142534)
+        if (themeMeta.getAttribute('content') !== '#142534') themeMeta.setAttribute('content', '#142534');
+      }
+    });
 
     const slides = document.querySelectorAll('.slide');
     let active = 0;
@@ -1096,9 +1132,14 @@ function renderVouchersOnly() {
         ALL_VOUCHERS.forEach(v => {
             // Kiểm tra khách đã dùng mã chưa
             if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
+
             // Xử lý hiển thị phần trăm hoặc tiền
             let displayValue = v.type === 'PERCENT' ? `Giảm ${v.value}%` : `Giảm ${formatVND(v.value)}`;
-            vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}</span>`;
+
+            // [UX DESIGN] Xử lý hiển thị điều kiện đơn tối thiểu tinh tế
+            let minOrderText = (Number(v.minOrderValue) > 0) ? ` - Đơn từ ${formatVND(v.minOrderValue)}` : ``;
+
+            vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}${minOrderText}</span>`;
         });
         vContainer.innerHTML = vHtml;
     } else {
