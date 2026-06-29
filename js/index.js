@@ -42,7 +42,7 @@ window.saveCartState = async function () {
         try {
             await fetch(GOOGLE_API_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'syncCart', payload: { token: sessionStorage.getItem('kem_token'), cart: cart } })
+                body: JSON.stringify({ action: 'syncCart', payload: { token: localStorage.getItem('kem_token'), cart: cart } })
             });
         } catch (e) { }
     } else {
@@ -69,14 +69,14 @@ function startCustomerSync() {
     // Quét 20 giây/lần để bảo vệ Server Google
     customerSyncInterval = setInterval(async () => {
         // Chỉ chạy khi đã đăng nhập và đang mở tab (Tiết kiệm tài nguyên)
-        if (!LOGGED_USER || !sessionStorage.getItem('kem_token') || document.hidden) return;
+        if (!LOGGED_USER || !localStorage.getItem('kem_token') || document.hidden) return;
 
         try {
             const res = await fetch(GOOGLE_API_URL, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'refreshUserData',
-                    payload: { token: sessionStorage.getItem('kem_token') }
+                    payload: { token: localStorage.getItem('kem_token') }
                 })
             }).then(r => r.json());
 
@@ -391,7 +391,7 @@ window.finalUserAction = async function () {
     const payload = {
         action: isEdit ? 'updateUser' : 'registerUser',
         payload: {
-            token: isEdit ? sessionStorage.getItem('kem_token') : null, // Gửi token nếu đang update
+            token: isEdit ? localStorage.getItem('kem_token') : null, // Gửi token nếu đang update
             uid: uid,
             name: document.getElementById('user-name').value,
             phone: document.getElementById('user-phone').value,
@@ -410,6 +410,80 @@ window.finalUserAction = async function () {
     setBtnLoading('btn-verify-otp', false);
 }
 
+// ==========================================
+// AUTO-RESUME SESSION (TỰ ĐỘNG KHÔI PHỤC PHIÊN)
+// ==========================================
+window.autoResumeSession = async function () {
+    const token = localStorage.getItem('kem_token');
+    if (!token) return; // Không có token, bỏ qua cho khách vãng lai
+
+    try {
+        const res = await fetch(GOOGLE_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'refreshUserData',
+                payload: { token: token }
+            })
+        }).then(r => r.json());
+
+        if (res.status === 'success' && res.user) {
+            // 1. Phục hồi định danh hệ thống
+            LOGGED_USER = res.user;
+
+            // 2. Phục hồi UI giao diện âm thầm
+            const navNameEl = document.getElementById('nav-user-name');
+            if (navNameEl) navNameEl.innerText = LOGGED_USER.name.split(' ').pop();
+
+            const formName = document.getElementById('form-name');
+            if (formName) formName.value = LOGGED_USER.name;
+            const formPhone = document.getElementById('form-phone');
+            if (formPhone) formPhone.value = LOGGED_USER.phone;
+            const formAddress = document.getElementById('form-address');
+            if (formAddress) formAddress.value = LOGGED_USER.address || '';
+            const dashWelcome = document.getElementById('dash-welcome-title');
+            if (dashWelcome) dashWelcome.innerText = LOGGED_USER.name + '.';
+
+            // 3. Thuật toán gộp Giỏ hàng (Merge Cart) bảo vệ dữ liệu khách
+            let serverCart = [];
+            try { serverCart = JSON.parse(res.user.cartData || "[]"); } catch (e) { }
+            let localUserCart = JSON.parse(localStorage.getItem('kem_user_cart_' + res.user.uid)) || [];
+            let guestCart = [...cart];
+
+            let mergedCart = [...serverCart];
+            localUserCart.forEach(localItem => {
+                if (!mergedCart.find(i => i.id === localItem.id)) mergedCart.push(localItem);
+            });
+            guestCart.forEach(guestItem => {
+                if (!mergedCart.find(i => i.id === guestItem.id)) mergedCart.push(guestItem);
+            });
+
+            cart = mergedCart;
+            cart.forEach(item => { if (item.selected === undefined) item.selected = true; });
+            localStorage.removeItem('kem_guest_cart'); // Dọn dẹp giỏ vãng lai
+            saveCartState();
+
+            const badge = document.getElementById('cart-badge');
+            if (badge) badge.innerText = cart.reduce((s, i) => s + i.qty, 0);
+            if (typeof renderCartUI === 'function') renderCartUI();
+
+            // 4. Phục hồi Lịch sử đơn hàng, Voucher
+            renderUserOrdersList(res.orders || []);
+            USED_VOUCHERS = res.usedVouchers || [];
+            autoApplyBestVoucher();
+
+            // 5. Khởi động Cỗ máy Lắng nghe trạng thái đơn (Diffing Engine)
+            LOGGED_USER.ordersCache = res.orders || [];
+            if (typeof startCustomerSync === 'function') startCustomerSync();
+
+        } else {
+            // Cảnh báo bảo mật: Token hết hạn 24h hoặc bị thao túng -> Xóa sổ
+            localStorage.removeItem('kem_token');
+        }
+    } catch (e) {
+        console.error("Lỗi khôi phục phiên (Có thể do mạng):", e);
+    }
+};
+
 window.loginUser = async function () {
     const phone = document.getElementById('login-phone').value;
     const pass = document.getElementById('login-pass').value;
@@ -421,7 +495,7 @@ window.loginUser = async function () {
 
         if (res.status === 'success') {
             LOGGED_USER = res.user;
-            sessionStorage.setItem('kem_token', res.token); // Lưu Token bảo mật
+            localStorage.setItem('kem_token', res.token); // Lưu Token bảo mật
 
             // --- GỘP GIỎ HÀNG (MERGE CART) NÂNG CAO ---
             let serverCart = [];
@@ -524,7 +598,7 @@ window.refreshAllData = async function () {
     try {
         const res = await fetch(GOOGLE_API_URL, {
             method: 'POST',
-            body: JSON.stringify({ action: 'refreshUserData', payload: { token: sessionStorage.getItem('kem_token') } })
+            body: JSON.stringify({ action: 'refreshUserData', payload: { token: localStorage.getItem('kem_token') } })
         }).then(r => r.json());
 
         if (res.status === 'success') {
@@ -563,7 +637,7 @@ window.cancelOrderCustomer = async function (orderId) {
     showConfirmModal('Hủy đơn hàng', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
         try {
             // Lấy Token từ Session Storage
-            const currentToken = sessionStorage.getItem('kem_token');
+            const currentToken = localStorage.getItem('kem_token');
             if (!currentToken) {
                 luxuryToast("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!", true);
                 closeConfirmModal();
@@ -639,7 +713,7 @@ window.logoutUser = function () {
     document.getElementById('login-pass').value = '';
 
     // 3. BẢO MẬT CỐT LÕI: Hủy phiên làm việc (Token)
-    sessionStorage.removeItem('kem_token');
+    localStorage.removeItem('kem_token');
 
     // 4. TIÊU DIỆT "CART BLEED" TẬN GỐC (Kiến trúc phân vùng)
     // Đưa cart về rỗng để ép người dùng trở lại thân phận Guest trắng tinh
@@ -838,7 +912,7 @@ window.validateVoucherCode = async function () {
 
     try {
         // Gửi dữ liệu về Backend để phân xử giá tiền
-        const payload = { action: 'validateVoucher', payload: { token: sessionStorage.getItem('kem_token'), voucherCode: codeInput, cart: cart } };
+        const payload = { action: 'validateVoucher', payload: { token: localStorage.getItem('kem_token'), voucherCode: codeInput, cart: cart } };
         const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
 
         if (res.status === 'success') {
@@ -872,7 +946,7 @@ window.submitOrder = async function (e) {
     if (itemsToBuy.length === 0) return luxuryToast("Chưa có sản phẩm nào được chọn!", true);
 
     setBtnLoading('btn-submit-order', true, 'ĐANG XÁC NHẬN ĐƠN...');
-    const orderData = { action: 'createOrder', payload: { token: sessionStorage.getItem('kem_token'), customerName: document.getElementById('form-name').value, phone: document.getElementById('form-phone').value, address: document.getElementById('form-address').value, note: document.getElementById('form-note').value, voucher: appliedVoucherCode || "KHÔNG DÙNG", cart: itemsToBuy } };
+    const orderData = { action: 'createOrder', payload: { token: localStorage.getItem('kem_token'), customerName: document.getElementById('form-name').value, phone: document.getElementById('form-phone').value, address: document.getElementById('form-address').value, note: document.getElementById('form-note').value, voucher: appliedVoucherCode || "KHÔNG DÙNG", cart: itemsToBuy } };
     try {
         const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json());
         if (res.status === 'success') {
@@ -982,6 +1056,7 @@ window.closeLightbox = function () {
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     fetchStoreData();
+    autoResumeSession(); // [BẢN VÁ AUTO-RESUME] Kích hoạt chạy ngầm
 
     const badge = document.getElementById('cart-badge');
     if (badge) {
