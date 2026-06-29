@@ -1021,8 +1021,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         h.classList.remove('scrolled');
         h.classList.add('hero-mode');
-        // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#6D92B5)
-        if (themeMeta.getAttribute('content') !== '#6D92B5') themeMeta.setAttribute('content', '#6D92B5');
+        // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#142534)
+        if (themeMeta.getAttribute('content') !== '#142534') themeMeta.setAttribute('content', '#142534');
       }
     });
 
