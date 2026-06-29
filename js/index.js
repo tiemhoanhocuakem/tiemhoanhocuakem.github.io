@@ -62,14 +62,18 @@ let tempResetPhone = "";
 // CUSTOMER BACKGROUND SYNC (ĐỒNG BỘ NGẦM)
 // ==========================================
 let customerSyncInterval;
+let currentSyncTime = 60000; // Giá trị mặc định dự phòng
 
 function startCustomerSync() {
-    if (customerSyncInterval) clearInterval(customerSyncInterval);
+    if (customerSyncInterval) clearTimeout(customerSyncInterval);
 
-    // Quét 20 giây/lần để bảo vệ Server Google
-    customerSyncInterval = setInterval(async () => {
-        // Chỉ chạy khi đã đăng nhập và đang mở tab (Tiết kiệm tài nguyên)
-        if (!LOGGED_USER || !localStorage.getItem('kem_token') || document.hidden) return;
+    // Sử dụng setTimeout đệ quy thay vì setInterval để tránh việc request bị kẹt dồn ứ khi mạng lag
+    const syncLoop = async () => {
+        if (!LOGGED_USER || !localStorage.getItem('kem_token') || document.hidden) {
+            // Đợi nhịp tiếp theo nếu đang ẩn tab hoặc chưa đăng nhập
+            customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
+            return;
+        }
 
         try {
             const res = await fetch(GOOGLE_API_URL, {
@@ -81,40 +85,50 @@ function startCustomerSync() {
             }).then(r => r.json());
 
             if (res.status === 'success') {
-                const newOrders = res.orders || [];
-                const oldOrders = LOGGED_USER.ordersCache || []; // Lấy bộ nhớ đệm
-                let statusChanged = false;
-
-                // THUẬT TOÁN DIFFING: Truy vết Admin đổi trạng thái
-                if (oldOrders.length > 0) {
-                    newOrders.forEach(newOrder => {
-                        const oldOrder = oldOrders.find(o => o.orderId === newOrder.orderId);
-                        if (oldOrder && oldOrder.status !== newOrder.status) {
-                            statusChanged = true;
-                            // Đánh vào cảm xúc khách hàng bằng Toast Luxury
-                            if (newOrder.status === 'ĐÃ XÁC NHẬN') {
-                                luxuryToast(`🎉 Tin vui: Đơn hàng [${newOrder.orderId}] đã được tiệm xác nhận!`);
-                            } else if (newOrder.status === 'ĐƠN HỦY') {
-                                luxuryToast(`⚠️ Đơn hàng [${newOrder.orderId}] đã bị hủy.`, true);
-                            }
-                        }
-                    });
+                // Nhận lệnh cấu hình thời gian quét từ Backend (Quyền lực tối cao)
+                if (res.syncIntervalTime) {
+                    currentSyncTime = res.syncIntervalTime;
                 }
 
-                // Cập nhật lại bộ nhớ đệm
-                LOGGED_USER.ordersCache = newOrders;
-                USED_VOUCHERS = res.usedVouchers || [];
+                // Nếu Backend chặn spam (trả về user null), ta bỏ qua việc render
+                if (res.user) {
+                    const newOrders = res.orders || [];
+                    const oldOrders = LOGGED_USER.ordersCache || [];
+                    let statusChanged = false;
 
-                // UX: Chỉ render lại UI nếu đang mở tab Lịch sử đơn hàng VÀ có thay đổi
-                const dashboardView = document.getElementById('auth-dashboard-view');
-                if (statusChanged && dashboardView && dashboardView.classList.contains('active')) {
-                    renderUserOrdersList(newOrders);
+                    if (oldOrders.length > 0) {
+                        newOrders.forEach(newOrder => {
+                            const oldOrder = oldOrders.find(o => o.orderId === newOrder.orderId);
+                            if (oldOrder && oldOrder.status !== newOrder.status) {
+                                statusChanged = true;
+                                if (newOrder.status === 'ĐÃ XÁC NHẬN') {
+                                    luxuryToast(`🎉 Tin vui: Đơn hàng [${newOrder.orderId}] đã được tiệm xác nhận!`);
+                                } else if (newOrder.status === 'ĐƠN HỦY') {
+                                    luxuryToast(`⚠️ Đơn hàng [${newOrder.orderId}] đã bị hủy.`, true);
+                                }
+                            }
+                        });
+                    }
+
+                    LOGGED_USER.ordersCache = newOrders;
+                    USED_VOUCHERS = res.usedVouchers || [];
+
+                    const dashboardView = document.getElementById('auth-dashboard-view');
+                    if (statusChanged && dashboardView && dashboardView.classList.contains('active')) {
+                        renderUserOrdersList(newOrders);
+                    }
                 }
             }
         } catch (e) {
-            // Im lặng bỏ qua lỗi mạng tạm thời để không làm phiền khách
+            // Im lặng bỏ qua lỗi mạng tạm thời
         }
-    }, 60000);
+
+        // Lặp lại chu kỳ với thời gian đã được Backend cấp phép
+        customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
+    };
+
+    // Kích hoạt nhịp đập đầu tiên
+    customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
 }
 
 // LUXURY NOTIFICATION SYSTEM (Hệ thống thông báo hàng hiệu)
