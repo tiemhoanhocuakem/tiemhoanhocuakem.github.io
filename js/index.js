@@ -1,4 +1,4 @@
-const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbycPWadXREGh5SCiXsBuHWLeCsXXPvex76q2LBHHQxMWvGJ28d0VlcP6V5aM-GC42Ha/exec';
+const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbwuPbLTJ9ITUu7DYDHkFKxNzTz8OttVn7COdaJHR8GY58no91OfFwpDwC0Ey8g8nR2a/exec';
 
 let ALL_PRODUCTS = []; 
 let ALL_VOUCHERS = [];
