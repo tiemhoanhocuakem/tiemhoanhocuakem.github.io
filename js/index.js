@@ -1128,7 +1128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('in-view'); obs.unobserve(entry.target); } });
     }, { root: null, rootMargin: '0px', threshold: 0.1 });
 
-    window.renderProductsList = function () {
+    window.renderProductsList = function (isPageChange = false) {
         gridElement.style.opacity = 0;
         setTimeout(() => {
             gridElement.innerHTML = '';
@@ -1161,7 +1161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.querySelectorAll('.product-card').forEach(card => revealObserver.observe(card));
             if (totalPages <= 1) { paginationContainer.style.opacity = 0; paginationContainer.style.pointerEvents = 'none'; } else { paginationContainer.style.opacity = 1; paginationContainer.style.pointerEvents = 'auto'; pageIndicator.innerText = `${currentPage} / ${totalPages}`; btnPrev.disabled = (currentPage === 1); btnNext.disabled = (currentPage === totalPages); }
-            gridElement.style.opacity = 1; if (startIndex > 0) window.scrollTo({ top: document.getElementById('boutique-section').offsetTop - 80, behavior: 'smooth' });
+            gridElement.style.opacity = 1; if (isPageChange) window.scrollTo({ top: document.getElementById('boutique-section').offsetTop - 80, behavior: 'smooth' });
         }, 400);
     }
 
@@ -1200,7 +1200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderProductsList();
     }
     document.querySelectorAll('.cat-btn').forEach(btn => { btn.addEventListener('click', function () { if (this.classList.contains('active')) return; document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active', 'text-primary')); this.classList.add('active', 'text-primary'); filterCategory(this.getAttribute('data-cat')); }); });
-    btnPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderProductsList(); } }); btnNext.addEventListener('click', () => { const total = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE); if (currentPage < total) { currentPage++; renderProductsList(); } });
+    btnPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderProductsList(true); } }); btnNext.addEventListener('click', () => { const total = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE); if (currentPage < total) { currentPage++; renderProductsList(true); } });
 
     // KHỞI ĐỘNG PRELOADER VÀ SLIDER
     const intro = document.getElementById("luxury-intro");
