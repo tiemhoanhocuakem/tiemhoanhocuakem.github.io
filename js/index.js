@@ -347,7 +347,8 @@ window.confirmPasswordReset = async function () {
 
     setBtnLoading('btn-reset-trigger', true, 'ĐANG KHÔI PHỤC...');
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordRaw: newPass } }) }).then(r => r.json());
+        const clientHash = await sha256(newPass);
+        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordRaw: clientHash } }) }).then(r => r.json());
         if (res.status === 'success') {
             luxuryToast(res.message);
             document.getElementById('forgot-phone').value = ''; tempResetPhone = "";
@@ -1227,22 +1228,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => intro.style.opacity = 0, 3700);
 
     // [INFINITY EDGE UX] Thay đổi màu thanh trình duyệt (Status Bar) theo thời gian thực khi cuộn
-    window.addEventListener('scroll', () => {
-        const h = document.getElementById('main-header');
-        const themeMeta = document.getElementById('meta-theme-color');
+    const mainHeaderEl = document.getElementById('main-header');
+    const themeMetaEl = document.getElementById('meta-theme-color');
+    let isHeaderScrolled = false;
 
-        if (window.scrollY > 50) {
-            h.classList.add('scrolled');
-            h.classList.remove('hero-mode');
-            // Khi cuộn xuống: Thanh trình duyệt tiệp màu với nền Web (#EBF2F6)
-            if (themeMeta.getAttribute('content') !== '#EBF2F6') themeMeta.setAttribute('content', '#EBF2F6');
-        } else {
-            h.classList.remove('scrolled');
-            h.classList.add('hero-mode');
-            // Khi ở đỉnh trang: Thanh trình duyệt tiệp màu với ảnh tối (#142534)
-            if (themeMeta.getAttribute('content') !== '#142534') themeMeta.setAttribute('content', '#142534');
+    window.addEventListener('scroll', () => {
+        const shouldBeScrolled = window.scrollY > 50;
+        if (shouldBeScrolled !== isHeaderScrolled) {
+            isHeaderScrolled = shouldBeScrolled;
+            if (isHeaderScrolled) {
+                mainHeaderEl.classList.add('scrolled');
+                mainHeaderEl.classList.remove('hero-mode');
+                if (themeMetaEl.getAttribute('content') !== '#EBF2F6') themeMetaEl.setAttribute('content', '#EBF2F6');
+            } else {
+                mainHeaderEl.classList.remove('scrolled');
+                mainHeaderEl.classList.add('hero-mode');
+                if (themeMetaEl.getAttribute('content') !== '#142534') themeMetaEl.setAttribute('content', '#142534');
+            }
         }
-    });
+    }, { passive: true });
 
     const slides = document.querySelectorAll('.slide');
     let active = 0;
