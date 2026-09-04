@@ -269,8 +269,14 @@ function initStorefront() {
 // ==========================================
 window.toggleAuthDrawer = function () {
     const d = document.getElementById('auth-drawer'); const b = document.getElementById('auth-backdrop');
-    if (d.classList.contains('open')) { d.classList.remove('open'); b.classList.remove('open'); }
-    else { d.classList.add('open'); b.classList.add('open'); LOGGED_USER ? switchAuthView('dashboard') : switchAuthView('login'); }
+    if (d.classList.contains('open')) { 
+        d.classList.remove('open'); b.classList.remove('open'); 
+        document.body.style.overflow = '';
+    } else { 
+        d.classList.add('open'); b.classList.add('open'); 
+        document.body.style.overflow = 'hidden';
+        LOGGED_USER ? switchAuthView('dashboard') : switchAuthView('login'); 
+    }
 }
 
 window.switchAuthView = function (view) {
@@ -973,7 +979,17 @@ window.validateVoucherCode = async function () {
     btn.innerText = originalText; btn.disabled = false;
 }
 
-window.toggleCart = function () { const d = document.getElementById('cart-drawer'); const b = document.getElementById('cart-backdrop'); d.classList.contains('open') ? (d.classList.remove('open'), b.classList.remove('open'), setTimeout(() => switchView('cart-view'), 500)) : (d.classList.add('open'), b.classList.add('open')); }
+window.toggleCart = function () { 
+    const d = document.getElementById('cart-drawer'); const b = document.getElementById('cart-backdrop'); 
+    if (d.classList.contains('open')) {
+        d.classList.remove('open'); b.classList.remove('open'); 
+        document.body.style.overflow = '';
+        setTimeout(() => switchView('cart-view'), 500);
+    } else {
+        d.classList.add('open'); b.classList.add('open'); 
+        document.body.style.overflow = 'hidden';
+    } 
+}
 window.switchView = function (id) { document.querySelectorAll('.drawer-section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
 window.handleCheckoutNext = function () {
@@ -1161,7 +1177,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.querySelectorAll('.product-card').forEach(card => revealObserver.observe(card));
             if (totalPages <= 1) { paginationContainer.style.opacity = 0; paginationContainer.style.pointerEvents = 'none'; } else { paginationContainer.style.opacity = 1; paginationContainer.style.pointerEvents = 'auto'; pageIndicator.innerText = `${currentPage} / ${totalPages}`; btnPrev.disabled = (currentPage === 1); btnNext.disabled = (currentPage === totalPages); }
-            gridElement.style.opacity = 1; if (isPageChange) window.scrollTo({ top: document.getElementById('boutique-section').offsetTop - 80, behavior: 'smooth' });
+            gridElement.style.opacity = 1; if (isPageChange) window.scrollTo(0, document.getElementById('boutique-section').offsetTop - 80);
         }, 400);
     }
 
