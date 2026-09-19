@@ -537,8 +537,12 @@
                 <h3 class="font-serif text-3xl text-primary mb-4">Hoàn tất.</h3>
                 <p class="text-sm text-primary/70 font-light mb-10">Đơn hàng của bạn đã được gửi về hệ thống của Kem.
                     Chúng tôi sẽ liên hệ với bạn trong vài phút tới.</p>
+                <button onclick="viewOrderHistory()"
+                    class="w-full py-4 bg-primary border border-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-white hover:text-primary hover-scale transition-colors mb-3">
+                    Xem Đơn Đặt Hàng
+                </button>
                 <button onclick="toggleCart(); switchView('cart-view')"
-                    class="w-full py-4 border border-primary text-primary text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-primary hover:text-white hover-scale transition-colors">
+                    class="w-full py-4 bg-white border border-primary text-primary text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-primary hover:text-white hover-scale transition-colors">
                     Tiếp Tục Khám Phá
                 </button>
             </div>
@@ -676,6 +680,9 @@
                 <p id="reg-back-msg" class="text-xs text-center text-secondary pt-2">Đã có tài khoản? <span
                         class="underline cursor-pointer text-primary font-medium hover:text-secondary transition-colors"
                         onclick="switchAuthView('login')">Đăng nhập</span></p>
+                <div id="delete-account-wrapper" class="text-center pt-8 hide">
+                    <span onclick="requestDeleteAccount()" class="text-[10px] text-red-500 underline cursor-pointer hover:text-red-700 transition-colors uppercase tracking-widest font-semibold">Xóa tài khoản vĩnh viễn</span>
+                </div>
             </div>
         </div>
 
@@ -700,7 +707,7 @@
                 <button onclick="finalUserAction()" id="btn-verify-otp"
                     class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all mt-8">Xác
                     Minh & Hoàn Tất</button>
-                <button onclick="switchAuthView('register')"
+                <button onclick="backToRegisterOrEdit()"
                     class="text-[10px] uppercase tracking-widest text-secondary underline hover:text-primary transition-colors mt-4">Quay
                     lại chỉnh sửa</button>
             </div>
@@ -743,8 +750,7 @@
                 chắc chắn?</p>
             <div class="flex flex-col gap-3 w-full">
                 <button id="btn-confirm-action" onclick="executeConfirmAction()"
-                    class="w-full py-4 bg-red-500 text-white text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-red-600 transition-colors shadow-lg flex justify-center items-center">Xác
-                    Nhận Hủy</button>
+                    class="w-full py-4 bg-red-500 text-white text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-red-600 transition-colors shadow-lg flex justify-center items-center">Xóa Tài Khoản</button>
                 <button onclick="closeConfirmModal()"
                     class="w-full py-4 border border-primary/20 text-primary text-[11px] font-semibold tracking-widest uppercase rounded-full hover:bg-primary/5 transition-colors">Trở
                     Lại</button>
@@ -795,9 +801,23 @@
         </div>
     </div>
 
+    <!-- DELETE OTP MODAL -->
+    <div id="delete-otp-modal" class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[160] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-400 px-4">
+        <div id="delete-otp-content" class="bg-surface p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-primary/10 transform scale-95 opacity-0 transition-all duration-400">
+            <h3 class="font-serif text-xl font-bold text-primary mb-2 text-center">Xác nhận xóa</h3>
+            <p class="text-xs text-secondary text-center mb-6 leading-relaxed">Vui lòng nhập mã OTP gồm 6 chữ số đã được gửi về email của bạn để xác nhận xóa vĩnh viễn.</p>
+            <input type="text" id="delete-otp-input" maxlength="6" class="elegant-input text-center tracking-[0.5em] font-bold text-lg mb-6" placeholder="------">
+            <div class="flex gap-3">
+                <button onclick="closeDeleteOtpModal()" class="flex-1 py-3.5 bg-slate-100 text-secondary text-[11px] font-bold tracking-[0.1em] uppercase rounded-full hover:bg-slate-200 transition-colors">Hủy</button>
+                <button id="btn-submit-delete-otp" onclick="submitDeleteOtp()" class="flex-1 py-3.5 bg-red-500 text-white text-[11px] font-bold tracking-[0.1em] uppercase rounded-full hover:bg-red-600 transition-colors">Xóa Ngay</button>
+            </div>
+        </div>
+    </div>
     <!-- ==========================================
          HỆ THỐNG JAVASCRIPT
          ========================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/index.js"></script>
 </body>
 
