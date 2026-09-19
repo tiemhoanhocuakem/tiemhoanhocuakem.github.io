@@ -1,7 +1,6 @@
-const GOOGLE_API_URL = 'https://script.google.com/macros/s/AKfycbwuPbLTJ9ITUu7DYDHkFKxNzTz8OttVn7COdaJHR8GY58no91OfFwpDwC0Ey8g8nR2a/exec';
-
 let ALL_PRODUCTS = []; 
 let ALL_VOUCHERS = [];
+let publicDataChannel = null;
 // --- KHỞI TẠO GIỎ HÀNG VỚI CƠ CHẾ TỰ HỦY (15 PHÚT) ---
 let cart = [];
 try {
@@ -32,6 +31,56 @@ let appliedVoucherCode = "";
 let appliedDiscountAmount = 0;
 let cartSubTotal = 0;
 
+// Bọc gọi API bằng Edge Function
+async function callEdgeFunction(action, payloadData) {
+    const routeMap = {
+        'sendOTP': '/auth/sendOTP',
+        'registerUser': '/auth/registerUser',
+        'loginUser': '/auth/loginUser',
+        'updateUser': '/auth/updateUser',
+        'refreshUserData': '/auth/refreshUserData',
+        'forgotPasswordStep1': '/auth/forgotPasswordStep1',
+        'checkOTPValid': '/auth/checkOTPValid',
+        'forgotPasswordStep2': '/auth/forgotPasswordStep2',
+        'createOrder': '/orders/createOrder',
+        'cancelOrderCustomer': '/orders/cancelOrderCustomer',
+        'validateVoucher': '/vouchers/validateVoucher'
+    };
+    
+    let route = routeMap[action] || ('/' + action);
+    
+    const headers = { 'Content-Type': 'application/json' };
+    const token = payloadData.token || localStorage.getItem('kem_token');
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    
+    try {
+        const res = await fetch(EDGE_FUNCTION_URL + route, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payloadData)
+        });
+        
+        // BẢN VÁ: Bắt lỗi 401 (Hết hạn JWT) để ép Đăng xuất và dọn dẹp Zombie Socket
+        if (res.status === 401) {
+            if (typeof logoutUser === 'function') logoutUser();
+            return { status: 'error', message: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại." };
+        }
+        
+        const json = await res.json();
+        // Convert format if needed. Edge function returns { data, error } from response.ts
+        // Success: { success: true, data: { ... } }
+        // Error: { success: false, message: "lý do lỗi" }
+        
+        if (json.success) {
+            return { status: 'success', ...json.data };
+        } else {
+            return { status: 'error', message: json.message || json.error || "Có lỗi xảy ra" };
+        }
+    } catch (e) {
+        return { status: 'error', message: 'Lỗi mạng' };
+    }
+}
+
 window.saveCartState = async function () {
     cart.forEach(item => { if (item.selected === undefined) item.selected = true; });
 
@@ -41,9 +90,10 @@ window.saveCartState = async function () {
 
         // Đồng bộ lên Cloud
         try {
-            await fetch(GOOGLE_API_URL, {
+            await fetch(EDGE_FUNCTION_URL + '/cart/syncCart', {
                 method: 'POST',
-                body: JSON.stringify({ action: 'syncCart', payload: { token: localStorage.getItem('kem_token'), cart: cart } })
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('kem_token') },
+                body: JSON.stringify({ cartData: cart })
             });
         } catch (e) { }
     } else {
@@ -59,77 +109,66 @@ let LOGGED_USER = null;
 let USED_VOUCHERS = [];
 let tempResetPhone = "";
 
-// ==========================================
-// CUSTOMER BACKGROUND SYNC (ĐỒNG BỘ NGẦM)
-// ==========================================
-let customerSyncInterval;
-let currentSyncTime = 60000; // Giá trị mặc định dự phòng
+let customerOrderChannel = null;
 
+function startRealtimeSync(uid) {
+    if (!uid) return;
+
+    // Hủy kênh cũ nếu có mà không làm ảnh hưởng public-data
+    if (customerOrderChannel) {
+        supabaseClient.removeChannel(customerOrderChannel);
+    }
+
+    customerOrderChannel = supabaseClient.channel(`my-orders-${uid}`)
+        .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'orders',
+            filter: `uid=eq.${uid}`
+        }, (payload) => {
+              const newOrderRaw = payload.new || {};
+              const oldOrderRaw = payload.old || {};
+              
+              const newOrder = {
+                  orderId: newOrderRaw.order_id,
+                  status: newOrderRaw.status,
+                  cartDetails: newOrderRaw.cart_details ? JSON.stringify(newOrderRaw.cart_details) : null,
+                  voucher: newOrderRaw.voucher,
+                  totalPrice: newOrderRaw.total_price,
+                  createdAt: newOrderRaw.created_at
+              };
+
+              if (LOGGED_USER && LOGGED_USER.ordersCache) {
+                  const idx = LOGGED_USER.ordersCache.findIndex(o => o.orderId === newOrder.orderId);
+                  if (idx !== -1) {
+                      LOGGED_USER.ordersCache[idx] = newOrder;
+                  } else {
+                      LOGGED_USER.ordersCache.unshift(newOrder); // Nếu chưa có thì thêm mới vào đầu
+                  }
+                  renderUserOrdersList(LOGGED_USER.ordersCache);
+              }
+
+              if (oldOrderRaw.status !== newOrderRaw.status) {
+                  if (newOrderRaw.status === 'ĐÃ XÁC NHẬN') {
+                      luxuryToast(`🎉 Đơn hàng [${newOrder.orderId}] đã được tiệm xác nhận!`);
+                  } else if (newOrderRaw.status === 'ĐƠN HỦY') {
+                      luxuryToast(`❌ Đơn hàng [${newOrder.orderId}] đã bị hủy.`, true);
+                  }
+              }
+
+              const dashboardView = document.getElementById('auth-dashboard-view');
+              if (dashboardView && dashboardView.classList.contains('active')) {
+                  renderUserOrdersList(LOGGED_USER.ordersCache);
+              }
+        })
+        .subscribe();
+}
+
+// Giữ lại hàm rỗng startCustomerSync để các chỗ gọi cũ không bị lỗi nếu có
 function startCustomerSync() {
-    if (customerSyncInterval) clearTimeout(customerSyncInterval);
-
-    // Sử dụng setTimeout đệ quy thay vì setInterval để tránh việc request bị kẹt dồn ứ khi mạng lag
-    const syncLoop = async () => {
-        if (!LOGGED_USER || !localStorage.getItem('kem_token') || document.hidden) {
-            // Đợi nhịp tiếp theo nếu đang ẩn tab hoặc chưa đăng nhập
-            customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
-            return;
-        }
-
-        try {
-            const res = await fetch(GOOGLE_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'refreshUserData',
-                    payload: { token: localStorage.getItem('kem_token') }
-                })
-            }).then(r => r.json());
-
-            if (res.status === 'success') {
-                // Nhận lệnh cấu hình thời gian quét từ Backend (Quyền lực tối cao)
-                if (res.syncIntervalTime) {
-                    currentSyncTime = res.syncIntervalTime;
-                }
-
-                // Nếu Backend chặn spam (trả về user null), ta bỏ qua việc render
-                if (res.user) {
-                    const newOrders = res.orders || [];
-                    const oldOrders = LOGGED_USER.ordersCache || [];
-                    let statusChanged = false;
-
-                    if (oldOrders.length > 0) {
-                        newOrders.forEach(newOrder => {
-                            const oldOrder = oldOrders.find(o => o.orderId === newOrder.orderId);
-                            if (oldOrder && oldOrder.status !== newOrder.status) {
-                                statusChanged = true;
-                                if (newOrder.status === 'ĐÃ XÁC NHẬN') {
-                                    luxuryToast(`🎉 Tin vui: Đơn hàng [${newOrder.orderId}] đã được tiệm xác nhận!`);
-                                } else if (newOrder.status === 'ĐƠN HỦY') {
-                                    luxuryToast(`⚠️ Đơn hàng [${newOrder.orderId}] đã bị hủy.`, true);
-                                }
-                            }
-                        });
-                    }
-
-                    LOGGED_USER.ordersCache = newOrders;
-                    USED_VOUCHERS = res.usedVouchers || [];
-
-                    const dashboardView = document.getElementById('auth-dashboard-view');
-                    if (statusChanged && dashboardView && dashboardView.classList.contains('active')) {
-                        renderUserOrdersList(newOrders);
-                    }
-                }
-            }
-        } catch (e) {
-            // Im lặng bỏ qua lỗi mạng tạm thời
-        }
-
-        // Lặp lại chu kỳ với thời gian đã được Backend cấp phép
-        customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
-    };
-
-    // Kích hoạt nhịp đập đầu tiên
-    customerSyncInterval = setTimeout(syncLoop, currentSyncTime);
+    if (LOGGED_USER && LOGGED_USER.uid) {
+        startRealtimeSync(LOGGED_USER.uid);
+    }
 }
 
 // LUXURY NOTIFICATION SYSTEM (Hệ thống thông báo hàng hiệu)
@@ -182,7 +221,7 @@ window.closeConfirmModal = function () {
 }
 window.executeConfirmAction = function () {
     if (activeConfirmCallback) {
-        setBtnLoading('btn-confirm-action', true, 'ĐANG HỦY...');
+        setBtnLoading('btn-confirm-action', true, 'ĐANG XỬ LÝ...');
         activeConfirmCallback();
     }
 }
@@ -210,42 +249,60 @@ function formatVND(value) {
     return num === 0 ? "0 VNĐ" : num.toLocaleString('vi-VN') + ' VNĐ';
 }
 
-// LẤY DỮ LIỆU TỪ SHEET
-// Bổ sung isSilent = false, và thêm timestamp (new Date().getTime()) để phá Cache của trình duyệt
+// Định dạng ngày giờ chuẩn Việt Nam (dd/MM/yyyy HH:mm)
+function formatDateVN(dateStr) {
+    if (!dateStr) return 'N/A';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleString('vi-VN', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+    } catch (e) { return dateStr; }
+}
+
+// Bổ sung isSilent = false, và thêm realtime để phá Cache
 async function fetchStoreData(isSilent = false) {
     try {
-        // Cache-Busting: Buộc trình duyệt phải lấy data mới nhất từ máy chủ
-        const response = await fetch(GOOGLE_API_URL + '?action=getStorefront&_t=' + new Date().getTime());
-        const data = await response.json();
+        const [pRes, vRes] = await Promise.all([
+            supabaseClient.from('products').select('*').order('created_at', { ascending: true }),
+            supabaseClient.from('vouchers').select('*')
+        ]);
+        
+        if (pRes.error) throw pRes.error;
+        if (vRes.error) throw vRes.error;
 
-        if (data.status === 'success') {
-            ALL_PRODUCTS = data.products.map(p => ({ ...p, price: Number(p.price) }));
-            ALL_VOUCHERS = data.vouchers.map(v => ({
-                ...v,
-                value: Number(v.value),
-                usedCount: Number(v.usedCount),
-                maxUsage: Number(v.maxUsage),
-                minOrderValue: Number(v.minOrderValue) || 0
-            }));
+        ALL_PRODUCTS = pRes.data.map(p => ({ ...p, price: Number(p.price) }));
+        ALL_VOUCHERS = vRes.data.map(v => ({
+            ...v,
+            value: Number(v.value),
+            usedCount: Number(v.used_count),
+            maxUsage: Number(v.max_usage),
+            minOrderValue: Number(v.min_order_value) || 0
+        }));
 
-            if (ALL_PRODUCTS.length === 0) {
-                document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có sản phẩm nào.";
-                return;
-            }
+        if (ALL_PRODUCTS.length === 0) {
+            document.getElementById('product-loading').innerHTML = "Cửa hàng tạm thời chưa có sản phẩm nào.";
+            return;
+        }
 
-            // XỬ LÝ CHÍNH KHÔNG GÂY NHÁY:
-            if (isSilent) {
-                // Nếu update ngầm (khi đặt đơn/hủy đơn), CHỈ render lại Voucher, KHÔNG render lại lưới sản phẩm
-                renderVouchersOnly();
-            } else {
-                // Nếu là lần tải trang đầu tiên
-                initStorefront();
-            }
+        // XỬ LÝ CHÍNH KHÔNG GÂY NHÁY:
+        if (isSilent) {
+            renderVouchersOnly();
         } else {
-            throw new Error("API Error");
+            initStorefront();
+            
+            // Kích hoạt Realtime tự động cập nhật nếu có thay đổi từ Admin
+            if (publicDataChannel) supabaseClient.removeChannel(publicDataChannel);
+            publicDataChannel = supabaseClient.channel('public-data')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
+                .subscribe();
         }
     } catch (error) {
-        console.error("Lỗi đồng bộ Sheets:", error);
+        console.error("Lỗi đồng bộ Supabase:", error);
         if (!isSilent) {
             document.getElementById('product-loading').innerHTML = "Hệ thống đang bảo trì. Vui lòng quay lại sau ít phút.";
         }
@@ -281,8 +338,14 @@ window.toggleAuthDrawer = function () {
 
 window.switchAuthView = function (view) {
     document.querySelectorAll('.auth-panel').forEach(p => { p.classList.remove('active'); p.classList.add('hide'); });
+    if (document.getElementById('delete-account-wrapper')) document.getElementById('delete-account-wrapper').classList.add('hide');
     const titles = { login: "Đăng nhập.", register: "Tạo tài khoản.", otp: "Xác thực.", dashboard: "Tài khoản.", forgot: "Khôi phục.", reset: "Mật khẩu mới." };
     document.getElementById('auth-drawer-title').innerText = titles[view] || "Tài khoản.";
+    if (view === 'register') {
+        document.getElementById('btn-save-account').innerText = "Xác nhận tạo tài khoản";
+        document.getElementById('reg-back-msg').classList.remove('hide');
+        document.getElementById('user-uid').value = "";
+    }
     const targetView = document.getElementById(`auth-${view}-view`);
     targetView.classList.remove('hide');
     setTimeout(() => { targetView.classList.add('active'); }, 10);
@@ -294,7 +357,7 @@ window.requestPasswordReset = async function () {
 
     setBtnLoading('btn-forgot-trigger', true, 'ĐANG TÌM KIẾM...');
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep1', payload: { phone: phone } }) }).then(r => r.json());
+        const res = await callEdgeFunction('forgotPasswordStep1', { phone: phone });
         if (res.status === 'success') {
             tempResetPhone = phone;
             luxuryToast(res.message);
@@ -321,7 +384,7 @@ window.verifyOTPForReset = async function () {
 
     setBtnLoading('btn-verify-otp-reset', true, 'ĐANG KIỂM TRA...');
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'checkOTPValid', payload: { phone: tempResetPhone, otp: otp } }) }).then(r => r.json());
+        const res = await callEdgeFunction('checkOTPValid', { phone: tempResetPhone, otp: otp });
 
         if (res.status === 'success') {
             luxuryToast(res.message);
@@ -348,7 +411,7 @@ window.confirmPasswordReset = async function () {
     setBtnLoading('btn-reset-trigger', true, 'ĐANG KHÔI PHỤC...');
     try {
         const clientHash = await sha256(newPass);
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'forgotPasswordStep2', payload: { phone: tempResetPhone, otp: otp, newPasswordRaw: clientHash } }) }).then(r => r.json());
+        const res = await callEdgeFunction('forgotPasswordStep2', { phone: tempResetPhone, otp: otp, newPasswordRaw: clientHash });
         if (res.status === 'success') {
             luxuryToast(res.message);
             document.getElementById('forgot-phone').value = ''; tempResetPhone = "";
@@ -393,7 +456,7 @@ window.initiateOTPFlow = async function () {
     };
 
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+        const res = await callEdgeFunction(payload.action, payload.payload);
         if (res.status === 'success') {
             luxuryToast("Mã OTP đã được gửi về Email.");
             switchAuthView('otp');
@@ -424,7 +487,7 @@ window.finalUserAction = async function () {
         }
     };
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+        const res = await callEdgeFunction(payload.action, payload.payload);
         if (res.status === 'success') {
             luxuryToast(res.message); document.getElementById('auth-register-view').querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('user-otp').value = ''; isEdit ? logoutUser() : switchAuthView('login');
         } else { luxuryToast(res.message, true); }
@@ -440,15 +503,22 @@ window.autoResumeSession = async function () {
     if (!token) return; // Không có token, bỏ qua cho khách vãng lai
 
     try {
-        const res = await fetch(GOOGLE_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'refreshUserData',
-                payload: { token: token }
-            })
-        }).then(r => r.json());
+        const res = await callEdgeFunction('refreshUserData', { token: token });
 
         if (res.status === 'success' && res.user) {
+            // 0. Kích hoạt Realtime với JWT đã xác thực bằng cách tạo lại Client (Bypass lỗi Realtime Auth)
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                global: { headers: { Authorization: `Bearer ${token}` } }
+            });
+            supabaseClient.realtime.setAuth(token);
+
+            // Đăng ký lại kênh public-data vì client mới đã mất kênh cũ
+            if (publicDataChannel) supabaseClient.removeChannel(publicDataChannel);
+            publicDataChannel = supabaseClient.channel('public-data')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
+                .subscribe();
+
             // 1. Phục hồi định danh hệ thống
             LOGGED_USER = res.user;
 
@@ -500,6 +570,7 @@ window.autoResumeSession = async function () {
         } else {
             // Cảnh báo bảo mật: Token hết hạn 24h hoặc bị thao túng -> Xóa sổ
             localStorage.removeItem('kem_token');
+              Object.keys(localStorage).forEach(k => { if (k.startsWith('kem_user_cart_')) localStorage.removeItem(k); });
         }
     } catch (e) {
         console.error("Lỗi khôi phục phiên (Có thể do mạng):", e);
@@ -513,11 +584,22 @@ window.loginUser = async function () {
     setBtnLoading('btn-login-trigger', true, 'ĐANG ĐĂNG NHẬP...');
     try {
         const clientHash = await sha256(pass); // Băm lần 1 tại Client
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'loginUser', payload: { email: phone, passwordRaw: clientHash } }) }).then(r => r.json());
+        const res = await callEdgeFunction('loginUser', { phone: phone, password: clientHash });
 
         if (res.status === 'success') {
             LOGGED_USER = res.user;
             localStorage.setItem('kem_token', res.token); // Lưu Token bảo mật
+            // Kích hoạt Realtime với JWT bằng cách tạo lại Client
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                global: { headers: { Authorization: `Bearer ${res.token}` } }
+            });
+            supabaseClient.realtime.setAuth(res.token);
+
+            if (publicDataChannel) supabaseClient.removeChannel(publicDataChannel);
+            publicDataChannel = supabaseClient.channel('public-data')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
+                .subscribe();
 
             // --- GỘP GIỎ HÀNG (MERGE CART) NÂNG CAO ---
             let serverCart = [];
@@ -568,10 +650,17 @@ window.loginUser = async function () {
 
 function renderUserOrdersList(orders) {
     const container = document.getElementById('dashboard-orders-list');
-    if (orders.length === 0) { container.innerHTML = `<p class="italic text-secondary text-sm">Bạn chưa có sản phẩm nào.</p>`; return; }
+    if (orders.length === 0) { container.innerHTML = `<p class="italic text-secondary text-sm">Bạn chưa có đơn hàng nào.</p>`; return; }
     let html = '';
-    orders.reverse().forEach(o => {
-        const statusColor = o.status === 'ĐƠN HỦY' ? 'text-red-500' : (o.status === 'ĐÃ XÁC NHẬN' ? 'text-green-600' : 'text-blue-600');
+    
+    // Sort by createdAt descending (newest first)
+    const sortedOrders = orders.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    sortedOrders.forEach(o => {
+        let statusColor = 'text-blue-600';
+        if (o.status === 'ĐƠN HỦY') statusColor = 'text-red-500';
+        else if (o.status === 'ĐÃ XÁC NHẬN') statusColor = 'text-green-600';
+        else if (o.status === 'ĐANG XỬ LÝ...') statusColor = 'text-orange-500';
 
         // Trích xuất Tên tuyệt tác từ cột cartDetails JSON
         let itemsHtml = '';
@@ -595,17 +684,24 @@ function renderUserOrdersList(orders) {
         const voucherHtml = (o.voucher && o.voucher !== 'KHÔNG DÙNG' && o.voucher !== 'Không')
             ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${o.voucher}</p>` : '';
 
+        let btnCancelHtml = '';
+        if (o.status === 'CHƯA XÁC NHẬN') {
+            btnCancelHtml = `<button onclick="cancelOrderCustomer('${o.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>`;
+        } else if (o.status === 'ĐANG XỬ LÝ...') {
+            btnCancelHtml = `<button disabled class="text-[9px] text-gray-500 uppercase tracking-widest font-bold border border-gray-200 bg-gray-50 px-3 py-1.5 rounded opacity-50 cursor-not-allowed">Đang xử lý...</button>`;
+        }
+
         html += `<div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300">
                     <div class="flex justify-between items-center font-bold text-primary mb-1">
                         <span class="tracking-widest text-[11px]">${o.orderId}</span>
                         <span class="text-[10px] uppercase tracking-widest ${statusColor} bg-slate-50 px-2 py-1 rounded">${o.status}</span>
                     </div>
-                    <p class="text-[10px] text-secondary font-medium mb-2">${o.createdAt}</p>
+                    <p class="text-[10px] text-secondary font-medium mb-2">${formatDateVN(o.createdAt)}</p>
                     ${itemsHtml}
                     <div class="flex flex-col border-t border-primary/5 pt-3 mt-1">
                         <div class="flex justify-between items-end">
                             <span class="font-serif font-bold text-primary text-xl">${formatVND(o.totalPrice)}</span>
-                            ${o.status === 'CHƯA XÁC NHẬN' ? `<button onclick="cancelOrderCustomer('${o.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>` : ''}
+                            ${btnCancelHtml}
                         </div>
                         ${voucherHtml}
                     </div>
@@ -618,10 +714,7 @@ function renderUserOrdersList(orders) {
 window.refreshAllData = async function () {
     if (!LOGGED_USER) return;
     try {
-        const res = await fetch(GOOGLE_API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'refreshUserData', payload: { token: localStorage.getItem('kem_token') } })
-        }).then(r => r.json());
+        const res = await callEdgeFunction('refreshUserData', { token: localStorage.getItem('kem_token') });
 
         if (res.status === 'success') {
             USED_VOUCHERS = res.usedVouchers || [];
@@ -655,13 +748,23 @@ window.refreshAllData = async function () {
     }
 }
 
+let _isCancelingOrder = false; // Khóa chống spam hủy đơn
+
 window.cancelOrderCustomer = async function (orderId) {
+    // [CHỐNG SPAM] Nếu đang xử lý hủy đơn khác → chặn ngay
+    if (_isCancelingOrder) return;
+
     showConfirmModal('Hủy đơn hàng', `Bạn thực sự muốn hủy đơn hàng [${orderId}]?`, async () => {
+
+        // [CHỐNG SPAM] Khóa ngay khi xác nhận, chặn mọi lần bấm tiếp theo
+        if (_isCancelingOrder) return;
+        _isCancelingOrder = true;
 
         // [KIẾN TRÚC MỚI] 1. Tiền kiểm tra mạng (Pre-flight Network Check)
         if (!navigator.onLine) {
             luxuryToast("Không có kết nối Internet. Vui lòng kiểm tra lại mạng!", true);
             setBtnLoading('btn-confirm-action', false);
+            _isCancelingOrder = false; // Mở khóa lại nếu lỗi mạng
             return;
         }
 
@@ -682,6 +785,7 @@ window.cancelOrderCustomer = async function (orderId) {
             const currentToken = localStorage.getItem('kem_token');
             if (!currentToken) {
                 luxuryToast("Phiên đăng nhập đã hết hạn. Vui lòng tải lại trang!", true);
+                _isCancelingOrder = false;
                 return;
             }
 
@@ -690,7 +794,7 @@ window.cancelOrderCustomer = async function (orderId) {
                 payload: { orderId: orderId, token: currentToken }
             };
 
-            const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payloadData) }).then(r => r.json());
+            const res = await callEdgeFunction(payloadData.action, payloadData.payload);
 
             if (res.status === 'success') {
                 luxuryToast("Đã hủy đơn hàng thành công.");
@@ -718,6 +822,16 @@ window.cancelOrderCustomer = async function (orderId) {
         } catch (e) {
             // [BẢN VÁ UX] Trấn an tâm lý khách hàng khi đứt mạng lúc hủy đơn
             luxuryToast("Mất kết nối mạng tạm thời! Yêu cầu hủy đang chờ. Hệ thống sẽ tự động cập nhật ngay khi bạn có mạng lại.", true);
+            // Rollback UI khi mất mạng
+            if (LOGGED_USER && LOGGED_USER.ordersCache) {
+                const targetOrder = LOGGED_USER.ordersCache.find(o => o.orderId === orderId);
+                if (targetOrder) {
+                    targetOrder.status = 'CHƯA XÁC NHẬN';
+                    renderUserOrdersList(LOGGED_USER.ordersCache);
+                }
+            }
+        } finally {
+            _isCancelingOrder = false; // Luôn mở khóa sau khi hoàn tất (dù thành công hay thất bại)
         }
     });
 }
@@ -727,14 +841,29 @@ window.openEditProfile = function () {
     document.getElementById('auth-drawer-title').innerText = "Cập nhật.";
     document.getElementById('btn-save-account').innerText = "Lưu thay đổi";
     document.getElementById('reg-back-msg').classList.add('hide');
+    if (document.getElementById('delete-account-wrapper')) document.getElementById('delete-account-wrapper').classList.remove('hide');
     document.getElementById('user-uid').value = LOGGED_USER.uid;
     document.getElementById('user-name').value = LOGGED_USER.name;
     document.getElementById('user-phone').value = LOGGED_USER.phone;
     document.getElementById('user-email').value = LOGGED_USER.email;
     document.getElementById('user-address').value = LOGGED_USER.address || '';
+    document.getElementById('user-pass').value = ''; // Luôn để trống ô mật khẩu
 
     // Xóa disable để cho phép người dùng tự do sửa lại Email nhận OTP
     document.getElementById('user-email').disabled = false;
+}
+
+window.backToRegisterOrEdit = function () {
+    const uid = document.getElementById('user-uid').value;
+    if (uid) {
+        window.openEditProfile();
+    } else {
+        switchAuthView('register');
+        document.getElementById('auth-drawer-title').innerText = "Tạo tài khoản.";
+        document.getElementById('btn-save-account').innerText = "Đăng ký";
+        document.getElementById('reg-back-msg').classList.remove('hide');
+        if (document.getElementById('delete-account-wrapper')) document.getElementById('delete-account-wrapper').classList.add('hide');
+    }
 }
 
 // HÀM MỚI: ẨN/HIỆN MẬT KHẨU BẰNG ICON CON MẮT
@@ -752,6 +881,11 @@ window.togglePassword = function (inputId, btn) {
 window.logoutUser = function () {
     // [BẢN VÁ ZERO-TRUST] Tiêu diệt cỗ máy đồng bộ ngầm, giải phóng RAM
     if (typeof customerSyncInterval !== 'undefined') clearInterval(customerSyncInterval);
+    if (customerOrderChannel) { supabaseClient.removeChannel(customerOrderChannel); customerOrderChannel = null; }
+    if (publicDataChannel) { supabaseClient.removeChannel(publicDataChannel); publicDataChannel = null; }
+
+    // Xóa rác local cart
+    if (LOGGED_USER && LOGGED_USER.uid) { localStorage.removeItem('kem_user_cart_' + LOGGED_USER.uid); }
 
     // 1. Xóa trạng thái định danh người dùng (Giao diện)
     LOGGED_USER = null;
@@ -761,9 +895,11 @@ window.logoutUser = function () {
     document.getElementById('checkout-form').reset();
     document.getElementById('login-phone').value = '';
     document.getElementById('login-pass').value = '';
+    document.getElementById('auth-register-view').querySelectorAll('input').forEach(i => i.value = '');
 
     // 3. BẢO MẬT CỐT LÕI: Hủy phiên làm việc (Token)
     localStorage.removeItem('kem_token');
+              Object.keys(localStorage).forEach(k => { if (k.startsWith('kem_user_cart_')) localStorage.removeItem(k); });
 
     // 4. TIÊU DIỆT "CART BLEED" TẬN GỐC (Kiến trúc phân vùng)
     // Đưa cart về rỗng để ép người dùng trở lại thân phận Guest trắng tinh
@@ -862,7 +998,7 @@ function renderCartUI() {
         html += `
             <div class="flex gap-4 cart-item-row ${rowClass} items-center">
                 <label class="luxury-checkbox-wrapper shrink-0">
-                    <input type="checkbox" class="luxury-checkbox" ${isSelectedStr} onchange="toggleItemSelection(${item.id})">
+                    <input type="checkbox" class="luxury-checkbox" ${isSelectedStr} onchange="toggleItemSelection('${item.id}')">
                 </label>
                 <img src="${processDriveImage(item.image)}" class="cart-item-img shrink-0">
                 <div class="flex-1 flex flex-col justify-between py-1">
@@ -871,9 +1007,9 @@ function renderCartUI() {
                         <p class="text-[11px] text-secondary mt-1">${formatVND(item.price)}</p>
                     </div>
                     <div class="flex items-center gap-3 mt-2">
-                        <button onclick="changeQty(${item.id},-1)" class="qty-btn">-</button>
+                        <button onclick="changeQty('${item.id}',-1)" class="qty-btn">-</button>
                         <span class="font-medium text-sm w-4 text-center">${item.qty}</span>
-                        <button onclick="changeQty(${item.id},1)" class="qty-btn">+</button>
+                        <button onclick="changeQty('${item.id}',1)" class="qty-btn">+</button>
                     </div>
                 </div>
             </div>`;
@@ -900,6 +1036,9 @@ function renderCartUI() {
         btnCheckout.classList.remove('opacity-50', 'pointer-events-none');
         btnCheckout.innerText = `Thanh Toán (${selectedCount} SP)`;
     }
+    
+    // Cập nhật danh sách voucher hiển thị bên ngoài trang chủ để tự động ẩn/hiện theo giỏ hàng
+    if (typeof renderVouchersOnly === 'function') renderVouchersOnly();
 }
 
 window.removeVoucher = function () {
@@ -920,7 +1059,8 @@ window.autoApplyBestVoucher = function () {
         if (Number(v.usedCount) >= Number(v.maxUsage)) return; // Bỏ qua nếu mã đã hết lượt
 
         let eligibleAmount = 0;
-        cart.forEach(item => {
+        let selectedItems = cart.filter(item => item.selected);
+        selectedItems.forEach(item => {
             if (v.scope === 'ALL' || item.category === v.scope) {
                 eligibleAmount += item.price * item.qty;
             }
@@ -962,12 +1102,12 @@ window.validateVoucherCode = async function () {
 
     try {
         // Gửi dữ liệu về Backend để phân xử giá tiền
-        const payload = { action: 'validateVoucher', payload: { token: localStorage.getItem('kem_token'), voucherCode: codeInput, cart: cart } };
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+        const payload = { action: 'validateVoucher', payload: { token: localStorage.getItem('kem_token'), voucherCode: codeInput, cart: cart.filter(i => i.selected) } };
+        const res = await callEdgeFunction(payload.action, payload.payload);
 
         if (res.status === 'success') {
             appliedVoucherCode = codeInput;
-            appliedDiscountAmount = res.discount; // Backend báo giảm bao nhiêu thì lấy bấy nhiêu
+            appliedDiscountAmount = res.discountAmount; // Backend trả về discountAmount
             luxuryToast(`Mã hợp lệ! Đã giảm ${formatVND(appliedDiscountAmount)}.`);
             renderCartUI();
         } else {
@@ -992,6 +1132,14 @@ window.toggleCart = function () {
     } 
 }
 window.switchView = function (id) { document.querySelectorAll('.drawer-section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+window.viewOrderHistory = function () {
+    toggleCart(); 
+    switchView('cart-view'); 
+    if (!document.getElementById('auth-drawer').classList.contains('translate-x-0')) {
+        toggleAuthDrawer();
+    }
+    switchAuthView('dashboard');
+}
 
 window.handleCheckoutNext = function () {
     if (!LOGGED_USER) { luxuryToast("Vui lòng đăng nhập để thanh toán an toàn.", true); toggleCart(); setTimeout(toggleAuthDrawer, 300); return; }
@@ -1023,13 +1171,13 @@ window.submitOrder = async function (e) {
             phone: document.getElementById('form-phone').value,
             address: document.getElementById('form-address').value,
             note: document.getElementById('form-note').value,
-            voucher: appliedVoucherCode || "KHÔNG DÙNG",
+            voucherCode: appliedVoucherCode || "KHÔNG DÙNG",
             cart: itemsToBuy,
             remainingCart: itemsToKeep // [KIẾN TRÚC MỚI] Nhồi giỏ hàng mới vào chung một gói tin
         }
     };
     try {
-        const res = await fetch(GOOGLE_API_URL, { method: 'POST', body: JSON.stringify(orderData) }).then(r => r.json());
+        const res = await callEdgeFunction(orderData.action, orderData.payload);
         if (res.status === 'success') {
             cart = cart.filter(item => item.selected === false);
             saveCartState();
@@ -1046,7 +1194,7 @@ window.submitOrder = async function (e) {
             luxuryToast("🎉 Gửi đơn hàng thành công!");
 
             const dashboardList = document.getElementById('dashboard-orders-list');
-            if (dashboardList.innerHTML.includes("Bạn chưa có sản phẩm nào")) dashboardList.innerHTML = '';
+            if (dashboardList.innerHTML.includes("Bạn chưa có đơn hàng nào")) dashboardList.innerHTML = '';
 
             let itemsHtml = '<ul class="space-y-3 mb-4 border-t border-primary/10 pt-4">';
             orderData.payload.cart.forEach(i => {
@@ -1064,24 +1212,23 @@ window.submitOrder = async function (e) {
             // [BẢN VÁ] Chỉ mở khóa nút khi mọi thứ đã thành công 100%
             setBtnLoading('btn-submit-order', false);
         } else {
-            luxuryToast(res.message, true);
-            // [BẢN VÁ] Mở khóa nút nếu lỗi đến từ logic nghiệp vụ (VD: Sai voucher, đổi ý)
-            setBtnLoading('btn-submit-order', false);
+            // [BẢN VÁ ZERO-TRUST] Ngăn chặn Rủi ro Trùng Đơn Hàng (Duplicate Order)
+            if (res.message && res.message.includes('Lỗi mạng')) {
+                luxuryToast("Mất kết nối! Đơn hàng có thể đã được ghi nhận. Vui lòng tải lại trang (F5) để kiểm tra lịch sử mua hàng trước khi đặt lại!", true);
+                // CỐ TÌNH KHÔNG MỞ KHÓA NÚT để ngăn khách bấm đúp tạo ra 2 đơn giống hệt nhau.
+            } else {
+                luxuryToast(res.message, true);
+                setBtnLoading('btn-submit-order', false);
+            }
         }
     } catch (error) {
-        // [BẢN VÁ UX] Trấn an tâm lý khách hàng khi đứt mạng lúc chốt đơn
-        luxuryToast("Mất kết nối mạng tạm thời! Đơn hàng đang được bảo lưu. Hệ thống sẽ tự động hoàn tất ngay khi có mạng lại.", true);
-        switchView('cart-view');
+        luxuryToast("Đã xảy ra sự cố ngoài ý muốn. Vui lòng tải lại trang (F5).", true);
     }
 }
 
 window.openContact = function () { const m = document.getElementById('contact-modal'); m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => { m.classList.remove('opacity-0'); document.getElementById('contact-modal-content').classList.remove('scale-95', 'opacity-0'); }, 10); }
 window.closeContact = function () { const m = document.getElementById('contact-modal'); m.classList.add('opacity-0'); document.getElementById('contact-modal-content').classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 400); }
 window.openLightbox = function (imgSrc) {
-    // Giới hạn: Chỉ phóng to khi dùng trên điện thoại (màn hình < 768px). 
-    // Lời khuyên thiết kế: Nếu bạn muốn PC cũng phóng to được (tính năng rất sang trọng), hãy XÓA dòng if bên dưới đi!
-    if (window.innerWidth > 768) return;
-
     const lb = document.getElementById('image-lightbox');
     const lbImg = document.getElementById('lightbox-img');
     lbImg.src = imgSrc;
@@ -1129,6 +1276,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof refreshAllData === 'function') refreshAllData();
         }
     });
+
+    // ==========================================
+    // [KIẾN TRÚC MỚI] SILENT REFRESH (CẢM BIẾN TRỞ LẠI)
+    // ==========================================
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && localStorage.getItem('kem_token')) {
+            // Khách hàng vừa mở khóa điện thoại hoặc quay lại Tab
+            // Lập tức gọi hàm đồng bộ dữ liệu tĩnh lặng (Không hiện pop-up phiền phức)
+            if (typeof refreshAllData === 'function') refreshAllData();
+        }
+    });
     // ==========================================
 
     const badge = document.getElementById('cart-badge');
@@ -1157,7 +1315,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const delayStr = (index % 4) * 0.1 + 's';
                 // TOÀN BỘ HIỆU ỨNG HOVER, NÚT DUAL ACTION ĐƯỢC GIỮ NGUYÊN VÀ THÊM BTN-HOVER
                 const cardHTML = `<div class="product-card group" style="transition-delay: ${delayStr}"><div class="card-img-wrapper"><img src="${processDriveImage(p.image)}" alt="${p.name}" onclick="openLightbox('${processDriveImage(p.image)}')" class="cursor-pointer"><div class="quick-action-bar">
-                                        <button onclick="addToCart(${p.id})" class="flex-1 bg-white/90 backdrop-blur-md text-primary text-[10px] font-semibold tracking-[0.2em] uppercase py-3 lg:py-4 rounded-full border border-white/50 shadow-xl hover-scale hover:bg-primary hover:text-white transition-all duration-300 ease-in-out max-md:w-10 max-md:h-10 max-md:p-0 max-md:flex max-md:justify-center max-md:items-center max-md:flex-none">
+                                        <button onclick="addToCart('${p.id}')" class="flex-1 bg-white/90 backdrop-blur-md text-primary text-[10px] font-semibold tracking-[0.2em] uppercase py-3 lg:py-4 rounded-full border border-white/50 shadow-xl hover-scale hover:bg-primary hover:text-white transition-all duration-300 ease-in-out max-md:w-10 max-md:h-10 max-md:p-0 max-md:flex max-md:justify-center max-md:items-center max-md:flex-none">
                                             <span class="max-md:hidden">Thêm Giỏ</span><svg class="quick-btn-icon max-md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                                         </button>
                                         <button onclick="openContact()" class="flex-1 bg-primary/90 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase py-3 lg:py-4 rounded-full border border-primary/50 shadow-xl hover-scale hover:bg-white hover:text-primary transition-all duration-300 ease-in-out max-md:w-10 max-md:h-10 max-md:p-0 max-md:flex max-md:justify-center max-md:items-center max-md:flex-none">
@@ -1351,20 +1509,107 @@ function renderVouchersOnly() {
 
     if (ALL_VOUCHERS.length > 0) {
         let vHtml = '';
+        const selectedItems = cart.filter(item => item.selected);
+        const cartCategories = [...new Set(selectedItems.map(item => item.category))];
+
+        const categoryNames = {
+            'hoa-tuoi': 'hoa tươi',
+            'hoa-keo': 'hoa bánh kẹo',
+            'hoa-gau': 'hoa gấu bông',
+            'hoa-kem': 'hoa kẽm nhung',
+            'hoa-sap': 'hoa sáp',
+            'thap-banh': 'tháp bánh kẹo',
+            'khac': 'các loại hoa khác'
+        };
+
         ALL_VOUCHERS.forEach(v => {
             // Kiểm tra khách đã dùng mã chưa
             if (USED_VOUCHERS.includes(v.code.toUpperCase())) return;
+            
+            // Ẩn voucher đã hết lượt sử dụng
+            if (v.usedCount >= v.maxUsage) return;
+
+            // Ẩn voucher không liên quan đến hạng mục trong giỏ hàng
+            if (v.scope !== 'ALL' && !cartCategories.includes(v.scope)) return;
 
             // Xử lý hiển thị phần trăm hoặc tiền
             let displayValue = v.type === 'PERCENT' ? `Giảm ${v.value}%` : `Giảm ${formatVND(v.value)}`;
 
             // [UX DESIGN] Xử lý hiển thị điều kiện đơn tối thiểu tinh tế
             let minOrderText = (Number(v.minOrderValue) > 0) ? ` - Đơn từ ${formatVND(v.minOrderValue)}` : ``;
+            let scopeKey = v.scope.toLowerCase();
+            let displayScope = categoryNames[scopeKey] || v.scope;
+            let scopeText = v.scope !== 'ALL' ? ` (Chỉ dành cho ${displayScope})` : ``;
 
-            vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}${minOrderText}</span>`;
+            vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}${minOrderText}${scopeText}</span>`;
         });
         vContainer.innerHTML = vHtml;
     } else {
         vContainer.innerHTML = '';
     }
 }
+
+// ==========================================
+// YÊU CẦU XÓA TÀI KHOẢN
+// ==========================================
+window.requestDeleteAccount = function() {
+    showConfirmModal(
+        'Xóa tài khoản?',
+        'Bạn có chắc chắn muốn xóa tài khoản chứ? Tài khoản của bạn sẽ bị xóa vĩnh viễn không thể khôi phục lại và mọi đơn hàng của bạn vẫn sẽ được lưu trữ trên hệ thống.',
+        async () => {
+            
+            try {
+                const res = await callEdgeFunction('auth/requestDeleteOtp', {});
+                setBtnLoading('btn-confirm-action', false);
+                closeConfirmModal();
+                if (res.status === 'success') {
+                    luxuryToast(res.message || "Đã gửi mã OTP");
+                    const modal = document.getElementById('delete-otp-modal');
+                    const content = document.getElementById('delete-otp-content');
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    content.classList.remove('scale-95', 'opacity-0');
+                } else {
+                    luxuryToast(res.message, true);
+                }
+            } catch (err) {
+                setBtnLoading('btn-confirm-action', false);
+                closeConfirmModal();
+                luxuryToast("Lỗi hệ thống", true);
+            }
+        }
+    );
+};
+
+window.closeDeleteOtpModal = function() {
+    const modal = document.getElementById('delete-otp-modal');
+    const content = document.getElementById('delete-otp-content');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('delete-otp-input').value = '';
+    }, 400);
+};
+
+window.submitDeleteOtp = async function() {
+    const otp = document.getElementById('delete-otp-input').value.trim();
+    if (otp.length !== 6) return luxuryToast("Vui lòng nhập đủ 6 số OTP", true);
+
+    const btn = document.getElementById('btn-submit-delete-otp');
+    btn.innerText = "ĐANG XÓA...";
+    btn.disabled = true;
+
+    try {
+        const res = await callEdgeFunction('auth/confirmDeleteAccount', { otp });
+        if (res.status === 'success') {
+            luxuryToast("Đã xóa tài khoản thành công!");
+            closeDeleteOtpModal();
+            setTimeout(() => { logoutUser(); }, 1000);
+        } else {
+            luxuryToast(res.message, true);
+        }
+    } catch (err) {
+        luxuryToast("Lỗi kết nối", true);
+    }
+    btn.innerText = "Xóa Ngay";
+    btn.disabled = false;
+};
