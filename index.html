@@ -495,8 +495,8 @@
                     <div><input id="form-phone" type="tel" required placeholder="Số điện thoại" class="elegant-input">
                     </div>
                     <div>
-                        <input id="form-address" type="text" required
-                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Phường/Xã, Tỉnh/Thành phố)" class="elegant-input">
+                        <textarea id="form-address" required
+                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Phường/Xã, Tỉnh/Thành phố)" class="elegant-input resize-none" rows="2"></textarea>
                         <p class="text-[11px] text-secondary/80 italic mt-1.5 ml-1 leading-tight">
                             *Đơn hàng này của bạn có thể được tính phí vận chuyển (Miễn phí trong phạm vi 4km và 15.000 VNĐ ngoài 4km), Tiệm hoa nhỏ của Kem sẽ liên hệ lại để thông tin chi tiết hơn cho bạn.
                         </p>
@@ -674,8 +674,8 @@
                             <circle cx="12" cy="12" r="3"></circle>
                         </svg></button>
                 </div>
-                <div><input type="text" id="user-address" placeholder="Địa chỉ giao hàng mặc định"
-                        class="elegant-input"></div>
+                <div><textarea id="user-address" placeholder="Địa chỉ giao hàng mặc định"
+                        class="elegant-input resize-none" rows="2"></textarea></div>
 
                 <div class="pt-6">
                     <button onclick="initiateOTPFlow()" id="btn-save-account"
