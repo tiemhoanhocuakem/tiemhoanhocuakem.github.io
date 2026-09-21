@@ -489,13 +489,18 @@
                     </svg></button>
             </div>
             <div class="flex-1 overflow-y-auto px-6 py-6">
-                <form id="checkout-form" class="flex flex-col gap-6" onsubmit="submitOrder(event)">
+                <form id="checkout-form" class="flex flex-col gap-4" onsubmit="submitOrder(event)">
                     <div><input id="form-name" type="text" required placeholder="Họ và tên người nhận"
                             class="elegant-input"></div>
                     <div><input id="form-phone" type="tel" required placeholder="Số điện thoại" class="elegant-input">
                     </div>
-                    <div><input id="form-address" type="text" required
-                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Quận)" class="elegant-input"></div>
+                    <div>
+                        <input id="form-address" type="text" required
+                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Phường/Xã, Tỉnh/Thành phố)" class="elegant-input">
+                        <p class="text-[11px] text-secondary/80 italic mt-1.5 ml-1 leading-tight">
+                            *Đơn hàng này của bạn có thể được tính phí vận chuyển (Miễn phí trong phạm vi 4km và 15.000 VNĐ ngoài 4km), Tiệm hoa nhỏ của Kem sẽ liên hệ lại để thông tin chi tiết hơn cho bạn.
+                        </p>
+                    </div>
                     <div><textarea id="form-note" placeholder="Ghi chú đơn hàng" rows="3"
                             class="elegant-input resize-none"></textarea></div>
                     <div
@@ -566,7 +571,7 @@
 
         <!-- VIEW LOGIN -->
         <div id="auth-login-view" class="auth-panel">
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <div><input type="tel" id="login-phone" placeholder="Số điện thoại" class="elegant-input"></div>
                 <div class="relative">
                     <input type="password" id="login-pass" placeholder="Mật khẩu" class="elegant-input pr-10"
