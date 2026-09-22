@@ -1546,7 +1546,19 @@ function renderVouchersOnly() {
             let displayScope = categoryNames[scopeKey] || v.scope;
             let scopeText = v.scope !== 'ALL' ? ` (Chỉ dành cho ${displayScope})` : ``;
 
-            vHtml += `<span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm" title="${v.description}">${v.code} - ${displayValue}${minOrderText}${scopeText}</span>`;
+            let tooltipHtml = '';
+            if (v.description && v.description.trim() !== '') {
+                tooltipHtml = `
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[220px] bg-slate-800 text-white text-[10px] leading-relaxed text-center px-2.5 py-1.5 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 pointer-events-none break-words whitespace-normal font-sans normal-case tracking-normal">
+                    ${v.description}
+                    <svg class="absolute text-slate-800 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                </div>`;
+            }
+
+            vHtml += `<div class="relative group inline-block">
+                <span onclick="document.getElementById('voucher-input').value='${v.code}'; validateVoucherCode()" class="block cursor-pointer px-3 py-1.5 bg-primary/5 text-primary text-[9px] font-bold tracking-[0.2em] uppercase rounded hover:bg-primary hover:text-white transition-all hover-scale border border-primary/10 shadow-sm">${v.code} - ${displayValue}${minOrderText}${scopeText}</span>
+                ${tooltipHtml}
+            </div>`;
         });
         vContainer.innerHTML = vHtml;
     } else {
