@@ -204,9 +204,16 @@ window.setBtnLoading = function (btnId, isLoading, loadingText = 'ĐANG XỬ LÝ
 
 // BỘ CÔNG CỤ UI: HỘP THOẠI XÁC NHẬN SANG TRỌNG
 let activeConfirmCallback = null;
-window.showConfirmModal = function (title, message, callback) {
+window.showConfirmModal = function (title, message, callback, btnText = 'XÁC NHẬN') {
     document.getElementById('confirm-title').innerText = title;
     document.getElementById('confirm-msg').innerText = message;
+    
+    // Cập nhật nhãn nút bấm
+    const actionBtn = document.getElementById('btn-confirm-action');
+    if (actionBtn) {
+        actionBtn.innerText = btnText;
+    }
+
     const modal = document.getElementById('confirm-modal');
     const content = document.getElementById('confirm-content');
     modal.classList.remove('pointer-events-none', 'opacity-0');
@@ -660,7 +667,6 @@ function renderUserOrdersList(orders) {
         let statusColor = 'text-blue-600';
         if (o.status === 'ĐƠN HỦY') statusColor = 'text-red-500';
         else if (o.status === 'ĐÃ XÁC NHẬN') statusColor = 'text-green-600';
-        else if (o.status === 'ĐANG XỬ LÝ...') statusColor = 'text-orange-500';
 
         // Trích xuất Tên tuyệt tác từ cột cartDetails JSON
         let itemsHtml = '';
@@ -686,9 +692,7 @@ function renderUserOrdersList(orders) {
 
         let btnCancelHtml = '';
         if (o.status === 'CHƯA XÁC NHẬN') {
-            btnCancelHtml = `<button onclick="cancelOrderCustomer('${o.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>`;
-        } else if (o.status === 'ĐANG XỬ LÝ...') {
-            btnCancelHtml = `<button disabled class="text-[9px] text-gray-500 uppercase tracking-widest font-bold border border-gray-200 bg-gray-50 px-3 py-1.5 rounded opacity-50 cursor-not-allowed">Đang xử lý...</button>`;
+            btnCancelHtml = `<button id="btn-cancel-${o.orderId}" onclick="cancelOrderCustomer('${o.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button>`;
         }
 
         html += `<div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300">
@@ -768,16 +772,15 @@ window.cancelOrderCustomer = async function (orderId) {
             return;
         }
 
-        // [KIẾN TRÚC MỚI] 2. Biến đổi cục bộ (Local Mutation) - Khóa UI ngay lập tức trong 1 mili-giây
-        closeConfirmModal();
-        setBtnLoading('btn-confirm-action', false);
-
-        if (LOGGED_USER && LOGGED_USER.ordersCache) {
-            const targetOrder = LOGGED_USER.ordersCache.find(o => o.orderId === orderId);
-            if (targetOrder) {
-                targetOrder.status = 'ĐANG XỬ LÝ...'; // Trạng thái ảo để tước quyền bấm nút
-                renderUserOrdersList(LOGGED_USER.ordersCache); // Vẽ lại UI lập tức, nút Hủy bốc hơi
-            }
+        // [BẢN VÁ UX] Không đóng modal và không render lại danh sách lúc này để tránh giật lag.
+        // Modal vẫn đang mở và nút vẫn đang quay (loading) nhờ hàm executeConfirmAction() gọi trước đó.
+        
+        // [CƯỠNG ÉP DOM] Cập nhật ngay lập tức cái nút ở ngoài danh sách mà không cần đập đi xây lại
+        const listBtn = document.getElementById(`btn-cancel-${orderId}`);
+        if (listBtn) {
+            listBtn.disabled = true;
+            listBtn.innerText = 'Đang xử lý...';
+            listBtn.className = "text-[9px] text-gray-500 uppercase tracking-widest font-bold border border-gray-200 bg-gray-50 px-3 py-1.5 rounded opacity-50 cursor-not-allowed";
         }
 
         // 3. Tiến hành giao tiếp với Máy chủ (Zero-Trust API)
@@ -831,9 +834,11 @@ window.cancelOrderCustomer = async function (orderId) {
                 }
             }
         } finally {
+            closeConfirmModal();
+            setBtnLoading('btn-confirm-action', false);
             _isCancelingOrder = false; // Luôn mở khóa sau khi hoàn tất (dù thành công hay thất bại)
         }
-    });
+    }, 'HỦY ĐƠN HÀNG');
 }
 
 window.openEditProfile = function () {
@@ -1271,7 +1276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('online', () => {
         if (LOGGED_USER) {
             // Hiển thị thông báo trấn an lập tức
-            luxuryToast("🌐 Đã kết nối lại mạng! Đang đồng bộ dữ liệu...");
+            luxuryToast("Đã kết nối lại mạng! Đang đồng bộ dữ liệu...");
             // Bỏ qua vòng lặp 60s, ép hệ thống gọi API đồng bộ ngay lập tức
             if (typeof refreshAllData === 'function') refreshAllData();
         }
@@ -1576,7 +1581,8 @@ window.requestDeleteAccount = function() {
                 closeConfirmModal();
                 luxuryToast("Lỗi hệ thống", true);
             }
-        }
+        },
+        'XÓA TÀI KHOẢN'
     );
 };
 
