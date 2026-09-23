@@ -900,7 +900,7 @@ window.logoutUser = function () {
     document.getElementById('checkout-form').reset();
     document.getElementById('login-phone').value = '';
     document.getElementById('login-pass').value = '';
-    document.getElementById('auth-register-view').querySelectorAll('input').forEach(i => i.value = '');
+    document.getElementById('auth-register-view').querySelectorAll('input, textarea').forEach(i => i.value = '');
 
     // 3. BẢO MẬT CỐT LÕI: Hủy phiên làm việc (Token)
     localStorage.removeItem('kem_token');
