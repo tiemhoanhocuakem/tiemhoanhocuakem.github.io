@@ -1102,7 +1102,8 @@ window.validateVoucherCode = async function () {
     if (cart.length === 0) return luxuryToast("Hãy chọn một sản phẩm vào giỏ hàng trước!", true);
 
     const btn = document.getElementById('btn-apply-voucher');
-    const originalText = btn.innerText;
+    if (btn.disabled) return; // Đang xử lý thì bỏ qua, chống spam/kẹt nút
+
     btn.innerText = "ĐANG XÉT..."; btn.disabled = true;
 
     try {
@@ -1122,7 +1123,7 @@ window.validateVoucherCode = async function () {
         }
     } catch (e) { luxuryToast("Lỗi kết nối khi kiểm tra mã.", true); }
 
-    btn.innerText = originalText; btn.disabled = false;
+    btn.innerText = "ÁP DỤNG"; btn.disabled = false;
 }
 
 window.toggleCart = function () { 
