@@ -31,6 +31,25 @@ let appliedVoucherCode = "";
 let appliedDiscountAmount = 0;
 let cartSubTotal = 0;
 
+// ==========================================
+// RADAR MẠNG NGẦM (CHỐNG TREO MẠNG ẢO)
+// ==========================================
+window.kemRealInternet = true; 
+
+window.setSystemOffline = function() {
+    if (window.kemRealInternet === true) {
+        window.kemRealInternet = false;
+        luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
+    }
+};
+
+window.setSystemOnline = function() {
+    if (window.kemRealInternet === false) {
+        window.kemRealInternet = true;
+    }
+};
+window.addEventListener('offline', () => window.setSystemOffline());
+
 // Bọc gọi API bằng Edge Function
 async function callEdgeFunction(action, payloadData) {
     const routeMap = {
@@ -53,12 +72,17 @@ async function callEdgeFunction(action, payloadData) {
     const token = payloadData.token || localStorage.getItem('kem_token');
     if (token) headers['Authorization'] = 'Bearer ' + token;
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
         const res = await fetch(EDGE_FUNCTION_URL + route, {
             method: 'POST',
             headers,
-            body: JSON.stringify(payloadData)
+            body: JSON.stringify(payloadData),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         // BẢN VÁ: Bắt lỗi 401 (Hết hạn JWT) để ép Đăng xuất và dọn dẹp Zombie Socket
         if (res.status === 401) {
@@ -77,7 +101,8 @@ async function callEdgeFunction(action, payloadData) {
             return { status: 'error', message: json.message || json.error || "Có lỗi xảy ra" };
         }
     } catch (e) {
-        return { status: 'error', message: 'Lỗi mạng' };
+        if (e.name === 'AbortError') return { status: 'error', message: 'Lỗi mạng: Lỗi kết nối máy chủ' };
+        return { status: 'error', message: 'Lỗi mạng: Lỗi kết nối máy chủ' };
     }
 }
 
@@ -161,7 +186,10 @@ function startRealtimeSync(uid) {
                   renderUserOrdersList(LOGGED_USER.ordersCache);
               }
         })
-        .subscribe();
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') { if (typeof window.setSystemOnline === 'function') window.setSystemOnline(); }
+            else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { if (typeof window.setSystemOffline === 'function') window.setSystemOffline(); }
+        });
 }
 
 // Giữ lại hàm rỗng startCustomerSync để các chỗ gọi cũ không bị lỗi nếu có
@@ -270,6 +298,12 @@ function formatDateVN(dateStr) {
     } catch (e) { return dateStr; }
 }
 
+// Chống XSS: Mã hóa HTML entities trước khi render dữ liệu vào DOM
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
 // Bổ sung isSilent = false, và thêm realtime để phá Cache
 async function fetchStoreData(isSilent = false) {
     try {
@@ -306,7 +340,10 @@ async function fetchStoreData(isSilent = false) {
             publicDataChannel = supabaseClient.channel('public-data')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
-                .subscribe();
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') { if (typeof window.setSystemOnline === 'function') window.setSystemOnline(); }
+                    else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { if (typeof window.setSystemOffline === 'function') window.setSystemOffline(); }
+                });
         }
     } catch (error) {
         console.error("Lỗi đồng bộ Supabase:", error);
@@ -359,6 +396,7 @@ window.switchAuthView = function (view) {
 }
 
 window.requestPasswordReset = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     const phone = document.getElementById('forgot-phone').value.trim();
     if (!phone) return luxuryToast("Vui lòng nhập số điện thoại!", true);
 
@@ -368,7 +406,7 @@ window.requestPasswordReset = async function () {
         if (res.status === 'success') {
             tempResetPhone = phone;
             luxuryToast(res.message);
-            document.getElementById('reset-email-msg').innerHTML = `Mã xác thực đã được gửi đến:<br><span class="text-sm font-bold mt-1 block tracking-widest text-primary">${res.email}</span>`;
+            document.getElementById('reset-email-msg').innerHTML = `Mã xác thực đã được gửi đến:<br><span class="text-sm font-bold mt-1 block tracking-widest text-primary">${escapeHtml(res.email)}</span>`;
 
             // Reset lại giao diện Bước 1: Mở ô OTP, Khóa ô Mật khẩu
             document.getElementById('reset-otp').disabled = false;
@@ -411,6 +449,7 @@ window.verifyOTPForReset = async function () {
 }
 
 window.confirmPasswordReset = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     const otp = document.getElementById('reset-otp').value.trim();
     const newPass = document.getElementById('reset-new-pass').value;
     if (!otp || !newPass) return luxuryToast("Vui lòng nhập mật khẩu mới!", true);
@@ -429,6 +468,7 @@ window.confirmPasswordReset = async function () {
 }
 
 window.initiateOTPFlow = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     const email = document.getElementById('user-email').value.trim();
     const name = document.getElementById('user-name').value.trim();
     const phone = document.getElementById('user-phone').value.trim();
@@ -475,6 +515,7 @@ window.initiateOTPFlow = async function () {
 }
 
 window.finalUserAction = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     setBtnLoading('btn-verify-otp', true, 'ĐANG XỬ LÝ...');
     const uid = document.getElementById('user-uid').value; const pass = document.getElementById('user-pass').value;
     const clientHash = pass ? await sha256(pass) : "";
@@ -513,10 +554,7 @@ window.autoResumeSession = async function () {
         const res = await callEdgeFunction('refreshUserData', { token: token });
 
         if (res.status === 'success' && res.user) {
-            // 0. Kích hoạt Realtime với JWT đã xác thực bằng cách tạo lại Client (Bypass lỗi Realtime Auth)
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                global: { headers: { Authorization: `Bearer ${token}` } }
-            });
+            // 0. Kích hoạt Realtime với JWT (Kiến trúc Single-Pipe Zero-Leak)
             supabaseClient.realtime.setAuth(token);
 
             // Đăng ký lại kênh public-data vì client mới đã mất kênh cũ
@@ -524,7 +562,10 @@ window.autoResumeSession = async function () {
             publicDataChannel = supabaseClient.channel('public-data')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
-                .subscribe();
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') { if (typeof window.setSystemOnline === 'function') window.setSystemOnline(); }
+                    else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { if (typeof window.setSystemOffline === 'function') window.setSystemOffline(); }
+                });
 
             // 1. Phục hồi định danh hệ thống
             LOGGED_USER = res.user;
@@ -585,6 +626,7 @@ window.autoResumeSession = async function () {
 };
 
 window.loginUser = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     const phone = document.getElementById('login-phone').value;
     const pass = document.getElementById('login-pass').value;
     if (!phone || !pass) return luxuryToast("Vui lòng nhập đầy đủ SĐT và Mật khẩu!", true);
@@ -596,17 +638,17 @@ window.loginUser = async function () {
         if (res.status === 'success') {
             LOGGED_USER = res.user;
             localStorage.setItem('kem_token', res.token); // Lưu Token bảo mật
-            // Kích hoạt Realtime với JWT bằng cách tạo lại Client
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                global: { headers: { Authorization: `Bearer ${res.token}` } }
-            });
+            // Kích hoạt Realtime với JWT (Kiến trúc Single-Pipe Zero-Leak)
             supabaseClient.realtime.setAuth(res.token);
 
             if (publicDataChannel) supabaseClient.removeChannel(publicDataChannel);
             publicDataChannel = supabaseClient.channel('public-data')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchStoreData(true))
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => fetchStoreData(true))
-                .subscribe();
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') { if (typeof window.setSystemOnline === 'function') window.setSystemOnline(); }
+                    else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { if (typeof window.setSystemOffline === 'function') window.setSystemOffline(); }
+                });
 
             // --- GỘP GIỎ HÀNG (MERGE CART) NÂNG CAO ---
             let serverCart = [];
@@ -637,7 +679,7 @@ window.loginUser = async function () {
             renderCartUI();
             // ---------------------------------
 
-            luxuryToast(`Đăng nhập thành công. Chào bạn ${LOGGED_USER.name.split(' ').pop()}!`);
+            luxuryToast(`Đăng nhập thành công. Chào bạn ${escapeHtml(LOGGED_USER.name.split(' ').pop())}!`);
             document.getElementById('nav-user-name').innerText = LOGGED_USER.name.split(' ').pop(); document.getElementById('form-name').value = LOGGED_USER.name; document.getElementById('form-phone').value = LOGGED_USER.phone; document.getElementById('form-address').value = LOGGED_USER.address || '';
             document.getElementById('dash-welcome-title').innerText = LOGGED_USER.name + '.';
 
@@ -678,7 +720,7 @@ function renderUserOrdersList(orders) {
                 items.forEach(i => {
                     itemsHtml += `
                             <li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5">
-                                <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${i.name}</span>
+                                <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${escapeHtml(i.name)}</span>
                                 <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span>
                             </li>`;
                 });
@@ -688,7 +730,7 @@ function renderUserOrdersList(orders) {
 
         // Hiển thị Mã Voucher đã dùng nếu có
         const voucherHtml = (o.voucher && o.voucher !== 'KHÔNG DÙNG' && o.voucher !== 'Không')
-            ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${o.voucher}</p>` : '';
+            ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${escapeHtml(o.voucher)}</p>` : '';
 
         let btnCancelHtml = '';
         if (o.status === 'CHƯA XÁC NHẬN') {
@@ -765,8 +807,8 @@ window.cancelOrderCustomer = async function (orderId) {
         _isCancelingOrder = true;
 
         // [KIẾN TRÚC MỚI] 1. Tiền kiểm tra mạng (Pre-flight Network Check)
-        if (!navigator.onLine) {
-            luxuryToast("Không có kết nối Internet. Vui lòng kiểm tra lại mạng!", true);
+        if (!navigator.onLine || !window.kemRealInternet) {
+            luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
             setBtnLoading('btn-confirm-action', false);
             _isCancelingOrder = false; // Mở khóa lại nếu lỗi mạng
             return;
@@ -914,6 +956,7 @@ window.logoutUser = function () {
     // 5. Reset luôn trạng thái Voucher (Tuyệt đối không để rò rỉ mã đang áp dụng)
     appliedVoucherCode = "";
     appliedDiscountAmount = 0;
+    USED_VOUCHERS = [];
     const voucherInput = document.getElementById('voucher-input');
     if (voucherInput) voucherInput.value = "";
 
@@ -928,6 +971,10 @@ window.logoutUser = function () {
     // 7. Thông báo và chuyển hướng
     luxuryToast("Đã đăng xuất an toàn.");
     switchAuthView('login');
+
+    // 8. TẨY RỬA CLIENT & PHỤC HỒI REALTIME KHÁCH VÃNG LAI
+    supabaseClient.realtime.setAuth(null);
+    if (typeof fetchStoreData === 'function') fetchStoreData(true);
 }
 
 // ==========================================
@@ -958,7 +1005,7 @@ window.addToCart = function (id) {
     ex ? ex.qty++ : cart.push({ ...p, qty: 1, selected: true }); // Mặc định chọn khi thêm
     const badge = document.getElementById('cart-badge'); badge.innerText = cart.reduce((s, i) => s + i.qty, 0);
     badge.classList.add('pop'); setTimeout(() => badge.classList.remove('pop'), 300);
-    luxuryToast(`Đã thêm "${p.name}" vào giỏ.`);
+    luxuryToast(`Đã thêm "${escapeHtml(p.name)}" vào giỏ.`);
     if (appliedVoucherCode !== "") { appliedVoucherCode = ""; appliedDiscountAmount = 0; document.getElementById('voucher-input').value = ""; }
     saveCartState();
     renderCartUI(); autoApplyBestVoucher();
@@ -1008,7 +1055,7 @@ function renderCartUI() {
                 <img src="${processDriveImage(item.image)}" class="cart-item-img shrink-0">
                 <div class="flex-1 flex flex-col justify-between py-1">
                     <div>
-                        <h4 class="font-serif text-lg text-primary leading-tight line-clamp-1">${item.name}</h4>
+                        <h4 class="font-serif text-lg text-primary leading-tight line-clamp-1">${escapeHtml(item.name)}</h4>
                         <p class="text-[11px] text-secondary mt-1">${formatVND(item.price)}</p>
                     </div>
                     <div class="flex items-center gap-3 mt-2">
@@ -1028,7 +1075,7 @@ function renderCartUI() {
 
     const finalDiscountEl = document.getElementById('final-discount-text');
     if (appliedDiscountAmount > 0) {
-        finalDiscountEl.innerHTML = `Mã [${appliedVoucherCode}] giảm: <span class="font-bold">${formatVND(appliedDiscountAmount)}</span> <button onclick="removeVoucher()" class="ml-1.5 text-red-500 hover:text-red-700 font-black transition-colors" title="Gỡ mã này">✕</button>`;
+        finalDiscountEl.innerHTML = `Mã [${escapeHtml(appliedVoucherCode)}] giảm: <span class="font-bold">${formatVND(appliedDiscountAmount)}</span> <button onclick="removeVoucher()" class="ml-1.5 text-red-500 hover:text-red-700 font-black transition-colors" title="Gỡ mã này">✕</button>`;
         finalDiscountEl.classList.remove('hidden');
     } else { finalDiscountEl.classList.add('hidden'); }
 
@@ -1096,6 +1143,7 @@ window.autoApplyBestVoucher = function () {
 }
 
 window.validateVoucherCode = async function () {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập để sử dụng mã ưu đãi!", true);
     const codeInput = document.getElementById('voucher-input').value.trim().toUpperCase();
     if (!codeInput) return luxuryToast("Vui lòng nhập hoặc chọn một mã ưu đãi!", true);
@@ -1157,8 +1205,8 @@ window.submitOrder = async function (e) {
     if (!LOGGED_USER) return luxuryToast("Vui lòng đăng nhập trước khi thanh toán!", true);
 
     // [BẢN VÁ BẢO MẬT ZERO-TRUST] 1. Pre-flight Network Check
-    if (!navigator.onLine) {
-        return luxuryToast("Không có kết nối Internet. Vui lòng kiểm tra lại mạng!", true);
+    if (!navigator.onLine || !window.kemRealInternet) {
+        return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     }
 
     const itemsToBuy = cart.filter(item => item.selected === true);
@@ -1204,11 +1252,11 @@ window.submitOrder = async function (e) {
 
             let itemsHtml = '<ul class="space-y-3 mb-4 border-t border-primary/10 pt-4">';
             orderData.payload.cart.forEach(i => {
-                itemsHtml += `<li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5"> <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${i.name}</span> <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span> </li>`;
+                itemsHtml += `<li class="flex flex-col bg-surface/50 p-3 rounded-lg border border-primary/5"> <span class="text-sm md:text-base font-bold text-primary tracking-tight leading-snug mb-1">${escapeHtml(i.name)}</span> <span class="text-[10px] font-medium text-secondary uppercase tracking-widest">Số lượng: <span class="font-bold text-primary text-xs">x${i.qty}</span></span> </li>`;
             });
             itemsHtml += '</ul>';
 
-            const voucherHtml = (orderData.payload.voucher && orderData.payload.voucher !== 'KHÔNG DÙNG') ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${orderData.payload.voucher}</p>` : '';
+            const voucherHtml = (orderData.payload.voucher && orderData.payload.voucher !== 'KHÔNG DÙNG') ? `<p class="text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100 mt-2 w-max shadow-sm uppercase tracking-widest">MÃ ĐÃ DÙNG: ${escapeHtml(orderData.payload.voucher)}</p>` : '';
 
             const newOrderCard = ` <div class="border border-primary/10 p-5 rounded-2xl bg-surface hover:shadow-lg transition-shadow duration-300"> <div class="flex justify-between items-center font-bold text-primary mb-1"> <span class="tracking-widest text-[11px]">${res.orderId}</span> <span class="text-[10px] uppercase tracking-widest text-blue-600 bg-slate-50 px-2 py-1 rounded">CHƯA XÁC NHẬN</span> </div> <p class="text-[10px] text-secondary font-medium mb-2">Vừa xong</p> ${itemsHtml} <div class="flex flex-col border-t border-primary/5 pt-3 mt-1"> <div class="flex justify-between items-end"> <span class="font-serif font-bold text-primary text-xl">${formatVND(res.finalTotal)}</span> <button onclick="cancelOrderCustomer('${res.orderId}')" class="text-[9px] text-red-500 uppercase tracking-widest font-bold border border-red-200 bg-red-50 px-3 py-1.5 rounded hover:bg-red-500 hover:text-white transition-colors">Hủy đơn</button> </div> ${voucherHtml} </div> </div>`;
 
@@ -1275,9 +1323,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // [KIẾN TRÚC MỚI] EVENT-DRIVEN RECOVERY (PHỤC HỒI TỨC THÌ KHI CÓ MẠNG)
     // ==========================================
     window.addEventListener('online', () => {
+        if (typeof window.setSystemOnline === 'function') window.setSystemOnline();
+        // Hiển thị thông báo trấn an lập tức cho MỌI KHÁCH HÀNG
+        luxuryToast("Đã kết nối lại mạng! Đang đồng bộ dữ liệu...");
         if (LOGGED_USER) {
-            // Hiển thị thông báo trấn an lập tức
-            luxuryToast("Đã kết nối lại mạng! Đang đồng bộ dữ liệu...");
             // Bỏ qua vòng lặp 60s, ép hệ thống gọi API đồng bộ ngay lập tức
             if (typeof refreshAllData === 'function') refreshAllData();
         }
@@ -1320,7 +1369,7 @@ document.addEventListener("DOMContentLoaded", () => {
             productsToShow.forEach((p, index) => {
                 const delayStr = (index % 4) * 0.1 + 's';
                 // TOÀN BỘ HIỆU ỨNG HOVER, NÚT DUAL ACTION ĐƯỢC GIỮ NGUYÊN VÀ THÊM BTN-HOVER
-                const cardHTML = `<div class="product-card group" style="transition-delay: ${delayStr}"><div class="card-img-wrapper"><img src="${processDriveImage(p.image)}" alt="${p.name}" onclick="openLightbox('${processDriveImage(p.image)}')" class="cursor-pointer"><div class="quick-action-bar">
+                const cardHTML = `<div class="product-card group" style="transition-delay: ${delayStr}"><div class="card-img-wrapper"><img src="${processDriveImage(p.image)}" alt="${escapeHtml(p.name)}" onclick="openLightbox('${processDriveImage(p.image)}')" class="cursor-pointer"><div class="quick-action-bar">
                                         <button onclick="addToCart('${p.id}')" class="flex-1 bg-white/90 backdrop-blur-md text-primary text-[10px] font-semibold tracking-[0.2em] uppercase py-3 lg:py-4 rounded-full border border-white/50 shadow-xl hover-scale hover:bg-primary hover:text-white transition-all duration-300 ease-in-out max-md:w-10 max-md:h-10 max-md:p-0 max-md:flex max-md:justify-center max-md:items-center max-md:flex-none">
                                             <span class="max-md:hidden">Thêm Giỏ</span><svg class="quick-btn-icon max-md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                                         </button>
@@ -1330,9 +1379,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                     </div>
                                 </div>
                                 <div class="mt-4 md:mt-6">
-                                    <p class="text-[8px] md:text-[9px] font-medium uppercase tracking-widest text-secondary mb-1">${p.tag}</p>
+                                    <p class="text-[8px] md:text-[9px] font-medium uppercase tracking-widest text-secondary mb-1">${escapeHtml(p.tag)}</p>
                                     <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-1 md:gap-0">
-                                        <h4 class="font-serif text-base md:text-xl text-primary pr-2 font-medium">${p.name}</h4>
+                                        <h4 class="font-serif text-base md:text-xl text-primary pr-2 font-medium">${escapeHtml(p.name)}</h4>
                                         <span class="font-serif text-sm md:text-lg text-primary font-medium">${formatVND(p.price)}</span>
                                     </div>
                                 </div>
@@ -1373,6 +1422,8 @@ document.addEventListener("DOMContentLoaded", () => {
             tempProducts.sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
         } else if (sortValue === 'desc') {
             tempProducts.sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
+        } else if (sortValue === 'newest') {
+            tempProducts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
 
         // 4. Render lại giao diện
@@ -1571,6 +1622,7 @@ function renderVouchersOnly() {
 // YÊU CẦU XÓA TÀI KHOẢN
 // ==========================================
 window.requestDeleteAccount = function() {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     showConfirmModal(
         'Xóa tài khoản?',
         'Bạn có chắc chắn muốn xóa tài khoản chứ? Tài khoản của bạn sẽ bị xóa vĩnh viễn không thể khôi phục lại và mọi đơn hàng của bạn vẫn sẽ được lưu trữ trên hệ thống.',
@@ -1610,6 +1662,7 @@ window.closeDeleteOtpModal = function() {
 };
 
 window.submitDeleteOtp = async function() {
+    if (!navigator.onLine || !window.kemRealInternet) return luxuryToast("Lỗi mạng: Lỗi kết nối máy chủ", true);
     const otp = document.getElementById('delete-otp-input').value.trim();
     if (otp.length !== 6) return luxuryToast("Vui lòng nhập đủ 6 số OTP", true);
 
