@@ -323,6 +323,7 @@
                 <div class="relative flex-1 md:w-64 md:flex-none" id="custom-sort-wrapper">
                     <select id="price-sort-filter" onchange="applyMasterFilter()" class="hidden">
                         <option value="default">Mặc định</option>
+                        <option value="newest">Mới nhất</option>
                         <option value="asc">Giá: Từ thấp đến cao</option>
                         <option value="desc">Giá: Từ cao đến thấp</option>
                     </select>
@@ -345,6 +346,10 @@
                             <button type="button" data-value="default"
                                 class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
                                 Mặc định
+                            </button>
+                            <button type="button" data-value="newest"
+                                class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
+                                Mới nhất
                             </button>
                             <button type="button" data-value="asc"
                                 class="sort-option text-left px-5 py-3 hover:bg-primary/5 text-primary font-serif italic text-[15px] tracking-wide transition-colors relative">
@@ -491,22 +496,22 @@
             <div class="flex-1 overflow-y-auto px-6 py-6">
                 <form id="checkout-form" class="flex flex-col gap-4" onsubmit="submitOrder(event)">
                     <div><input id="form-name" type="text" required placeholder="Họ và tên người nhận"
-                            class="elegant-input"></div>
-                    <div><input id="form-phone" type="tel" required placeholder="Số điện thoại" class="elegant-input">
+                            class="elegant-input" maxlength="50"></div>
+                    <div><input id="form-phone" type="tel" required placeholder="Số điện thoại" class="elegant-input" maxlength="15">
                     </div>
                     <div>
                         <textarea id="form-address" required
-                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Phường/Xã, Tỉnh/Thành phố)" class="elegant-input resize-none" rows="2"></textarea>
+                            placeholder="Địa chỉ giao hàng (Số nhà, Đường, Phường/Xã, Tỉnh/Thành phố)" class="elegant-input resize-none" rows="2" maxlength="300"></textarea>
                         <p class="text-[11px] text-secondary/80 italic mt-1.5 ml-1 leading-tight">
                             *Đơn hàng này của bạn có thể được tính phí vận chuyển (Miễn phí trong phạm vi 5km). Tiệm hoa nhỏ của Kem sẽ liên hệ lại để thông tin chi tiết hơn cho bạn.
                         </p>
                     </div>
                     <div><textarea id="form-note" placeholder="Ghi chú đơn hàng" rows="2"
-                            class="elegant-input resize-none"></textarea></div>
+                            class="elegant-input resize-none" maxlength="200"></textarea></div>
                     <div
                         class="relative mt-2 border-b border-accent focus-within:border-primary transition-colors duration-300 group">
                         <input type="text" id="voucher-input" placeholder="Nhập mã ưu đãi (Nếu có)"
-                            class="w-full py-4 bg-transparent font-sans text-sm text-primary outline-none placeholder:text-secondary/70 uppercase tracking-widest">
+                            class="w-full py-4 bg-transparent font-sans text-sm text-primary outline-none placeholder:text-secondary/70 uppercase tracking-widest" maxlength="30">
                         <button type="button" onclick="validateVoucherCode()" id="btn-apply-voucher"
                             class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase tracking-widest text-primary hover:text-secondary transition-all btn-hover whitespace-nowrap">Áp Dụng</button>
                     </div>
@@ -571,9 +576,9 @@
         <!-- VIEW LOGIN -->
         <div id="auth-login-view" class="auth-panel">
             <div class="space-y-4">
-                <div><input type="tel" id="login-phone" placeholder="Số điện thoại" class="elegant-input"></div>
+                <div><input type="tel" id="login-phone" placeholder="Số điện thoại" class="elegant-input" maxlength="15"></div>
                 <div class="relative">
-                    <input type="password" id="login-pass" placeholder="Mật khẩu" class="elegant-input pr-10"
+                    <input type="password" id="login-pass" placeholder="Mật khẩu" class="elegant-input pr-10" maxlength="100"
                         onkeypress="if(event.key === 'Enter') loginUser()">
                     <button type="button" onclick="togglePassword('login-pass', this)"
                         class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
@@ -604,7 +609,7 @@
                         khoản của bạn để nhận mã khôi phục.</p>
                 </div>
                 <div><input type="tel" id="forgot-phone" placeholder="Số điện thoại của bạn"
-                        class="elegant-input text-lg"></div>
+                        class="elegant-input text-lg" maxlength="15"></div>
                 <button onclick="requestPasswordReset()" id="btn-forgot-trigger"
                     class="w-full py-4 bg-primary text-white text-[11px] font-semibold tracking-[0.2em] uppercase rounded-full hover:bg-opacity-90 hover-scale transition-all shadow-lg mt-4">Gửi
                     Mã Xác Thực</button>
@@ -641,7 +646,7 @@
                     class="space-y-6 hide transition-all duration-500 opacity-0 transform translate-y-4">
                     <div class="relative mt-2">
                         <input type="password" id="reset-new-pass" placeholder="Nhập mật khẩu mới"
-                            class="elegant-input pr-10">
+                            class="elegant-input pr-10" maxlength="100">
                         <button type="button" onclick="togglePassword('reset-new-pass', this)"
                             class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
                                 width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -661,11 +666,11 @@
         <div id="auth-register-view" class="auth-panel hide">
             <div class="space-y-4 overflow-y-auto no-scrollbar pb-10">
                 <input type="hidden" id="user-uid">
-                <div><input type="text" id="user-name" placeholder="Họ và tên" class="elegant-input"></div>
-                <div><input type="tel" id="user-phone" placeholder="Số điện thoại" class="elegant-input"></div>
-                <div><input type="email" id="user-email" placeholder="Email nhận mã OTP" class="elegant-input"></div>
+                <div><input type="text" id="user-name" placeholder="Họ và tên" class="elegant-input" maxlength="50"></div>
+                <div><input type="tel" id="user-phone" placeholder="Số điện thoại" class="elegant-input" maxlength="15"></div>
+                <div><input type="email" id="user-email" placeholder="Email nhận mã OTP" class="elegant-input" maxlength="100"></div>
                 <div class="relative">
-                    <input type="password" id="user-pass" placeholder="Mật khẩu" class="elegant-input pr-10">
+                    <input type="password" id="user-pass" placeholder="Mật khẩu" class="elegant-input pr-10" maxlength="100">
                     <button type="button" onclick="togglePassword('user-pass', this)"
                         class="absolute right-0 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors focus:outline-none"><svg
                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -675,7 +680,7 @@
                         </svg></button>
                 </div>
                 <div><textarea id="user-address" placeholder="Địa chỉ giao hàng mặc định"
-                        class="elegant-input resize-none" rows="2"></textarea></div>
+                        class="elegant-input resize-none" rows="2" maxlength="300"></textarea></div>
 
                 <div class="pt-6">
                     <button onclick="initiateOTPFlow()" id="btn-save-account"
